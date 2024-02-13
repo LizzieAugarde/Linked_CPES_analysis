@@ -160,4 +160,4 @@ imd_data <- imd_data %>%
 #link to resp_data table 
 resp_data <- left_join(resp_data, imd_data, by = c("TUMOURID" = "TUMOURID"), relationship = "many-to-one")
 
-#write.csv(resp_data, "Raw respondent data with IMD 20240105.csv")
+write.csv(resp_data, "N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Data/Raw respondent data with IMD 20240213.csv")
