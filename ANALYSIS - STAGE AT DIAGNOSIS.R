@@ -19,7 +19,8 @@ stage_data <- stage_table(resp_data)
 stage_data <- stage_data %>%
   mutate(STAGE_2LEVEL = case_when(STAGE %in% c("1", "2", "Staged - other early") ~ "Early",
                                   STAGE %in% c("3", "4", "Staged - other advanced") ~ "Late",
-                                  STAGE %in% c("Error", "Unstageable", "Missing") ~ "Not available"))
+                                  STAGE %in% c("Error", "Unstageable", "Missing") ~ "Not available")) %>%
+  select(-starts_with("Q"))
 
 #trans patient fix from 02_data_tidying_tidy.R received from Chloe Bright
 stage_data <- stage_data %>% mutate(
