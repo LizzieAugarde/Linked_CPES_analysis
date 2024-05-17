@@ -15,6 +15,8 @@ library(tidyverse)
 library(dplyr)
 library(xlsx)
 
+resp_data <- read.csv("N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Data/Raw respondent data with IMD 20240213.csv")
+
 #data prep
 #sexuality variable to binary
 resp_data <- resp_data %>% ####different question in different years

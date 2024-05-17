@@ -8,6 +8,8 @@
 
 #prep
 library(tidyverse)
+library(modelsummary)
+library(ggstats)
 
 #read in
 surv_1yr_data <- read.csv("N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Data/Survival 1yr dataset for analysis.csv")
@@ -60,7 +62,7 @@ summary(model)
 exp(model$coefficients)
 
 
-#ethnicity and sexuality - converting ethnicity to grouped categories
+#ethnicity and survival - converting ethnicity to grouped categories
 surv_1yr_data <- surv_1yr_data %>%
   mutate(ETHNICITY = case_when(ETHNICITY %in% c("A", "B", "C") ~ "White",
                                ETHNICITY %in% c("D", "E", "F", "G") ~ "Mixed",
@@ -81,7 +83,16 @@ surv_1yr_data_num <- surv_1yr_data_num %>%
                                ETHNICITY == "Z" ~ "Not stated")) %>%
   mutate(ETHNICITY = factor(ETHNICITY, levels = c("White", "Mixed", "Asian", "Black", "Chinese", "Any other ethnic group", "Not stated"))) 
 
+surv_by_eth <- table(surv_1yr_data$ETHNICITY, surv_1yr_data$survival_1yr)
+props_surv_by_eth <- prop.table(surv_by_eth, margin = 1) #frequencies of survival to 1 yr by ethnicity
 
+chisq.test(surv_by_eth)
+model <- glm(surv_1yr_data_num$survival_1yr ~ surv_1yr_data_num$ETHNICITY, family = binomial (link=logit))
+summary(model)
+exp(model$coefficients)
+
+
+#ethnicity and sexuality 
 sexuality_by_eth <- table(surv_1yr_data$ETHNICITY, surv_1yr_data$sexuality_bin)
 props_sex_by_eth <- prop.table(sexuality_by_eth, margin = 1) #frequencies of sexuality status by ethnicity
 
@@ -90,20 +101,30 @@ model <- glm(surv_1yr_data_num$sexuality_bin ~ surv_1yr_data_num$ETHNICITY, fami
 summary(model)
 exp(model$coefficients)
 
-#TODO
-#AGE -> SITE_ICD10_O2_3CHAR
-#ETHNICITY -> SITE_ICD10_O2_3CHAR
-#SITE_ICD10_O2_3CHAR -> survival_1yr 
-#IMD19_DECILE_LSOAS -> survival_1yr
+
+#deprivation and survival 
+imd_check <- surv_1yr_data %>% 
+  filter(sexuality_bin != "Missing") %>%
+  mutate(sexuality_bin = ifelse(sexuality_bin == "Heterosexual", 0, 1)) %>%
+  mutate(survival_1yr = ifelse(survival_1yr == "Yes", 1, 0)) %>%
+  mutate(IMD19_DECILE_LSOAS = factor(IMD19_DECILE_LSOAS, levels = c("1 - most deprived", "2", "3", "4", "5", "6", "7", "8", "9", "10 - least deprived")))
+
+imd_table <- as.data.frame(table(surv_1yr_data$survival_1yr, surv_1yr_data$IMD19_DECILE_LSOAS, exclude = NA))
+prop.table(imd_table, 1) %>% {. * 100} %>% round(2)
+imd_table <- imd_table %>% mutate(decile = factor(Var2, levels = c("1 - most deprived", "2", "3", "4", "5", "6", "7", "8", "9", "10 - least deprived")))
+ggplot(filter(imd_table, Var1 == "Yes"), aes(x = decile, y = Freq)) + geom_point()
+
+surv_by_imd <- table(imd_check$IMD19_DECILE_LSOAS, imd_check$survival_1yr)
+chisq.test(surv_by_imd) #p v small
+model <- glm(imd_check$survival_1yr ~ imd_check$IMD19_DECILE_LSOAS, family = binomial (link=logit))
+summary(model)
+exp(model$coefficients)
+modelplot(model)
+
 
 #sexuality and deprivation
 imd_table <- table(surv_1yr_data$sexuality_bin, surv_1yr_data$IMD19_DECILE_LSOAS, exclude = NA)
 prop.table(imd_table, 1) %>% {. * 100} %>% round(2)
-
-imd_check <- surv_1yr_data %>% 
-  filter(sexuality_bin != "Missing") %>%
-  mutate(sexuality_bin = ifelse(sexuality_bin == "Heterosexual", 0, 1)) %>%
-  mutate(IMD19_DECILE_LSOAS = factor(IMD19_DECILE_LSOAS, levels = c("1 - most deprived", "2", "3", "4", "5", "6", "7", "8", "9", "10 - least deprived")))
 
 sex_by_imd <- table(imd_check$IMD19_DECILE_LSOAS, imd_check$sexuality_bin)
 chisq.test(sex_by_imd) #p v small
@@ -112,3 +133,15 @@ summary(model)
 exp(model$coefficients)
 #sexuality independent linear association with deprivation
 ####odds of being minority sexuality decrease with increasing deprivation, p values almost all small 
+
+
+#site and survival
+site_table <- as.data.frame(table(surv_1yr_data$survival_1yr, surv_1yr_data$SITE_ICD10_O2_3CHAR, exclude = NA))
+ggplot(filter(site_table, Var1 == "Yes"), aes(x = Var2, y = Freq)) + geom_point()
+
+surv_by_site <- table(surv_1yr_data_num$SITE_ICD10_O2_3CHAR, surv_1yr_data_num$survival_1yr)
+chisq.test(surv_by_site) #p v small
+model <- glm(surv_1yr_data_num$survival_1yr ~ surv_1yr_data_num$SITE_ICD10_O2_3CHAR, family = binomial (link=logit))
+summary(model)
+exp(model$coefficients)
+ggcoef_model(model, exponentiate = TRUE)

@@ -14,6 +14,17 @@ library(NDRSAfunctions)
 
 casref01 <- NDRSAfunctions::createConnection()
 
+#data extract - 2022
+resp2022_query <- "SELECT *
+                  FROM CPES.NC_2022_RESPONDENTS@casref01 cpes, CPES.NC_2022_LINKAGE_RES_CAS2403@casref01 ln, AV2021.AT_TUMOUR_ENGLAND@casref01 at
+                  WHERE cpes.cpes_prn = ln.cpes_prn
+                  AND ln.avtum_patientid = at.patientid
+                  AND ln.avtum_tumourid = at.tumourid
+                  AND ln.final_unique =  1"
+
+resp2022 <- dbGetQueryOracle(casref01, resp2022_query, rowlimit = NA)
+resp2022 <- resp2022[, !duplicated(colnames(resp2022))]
+
 #data extract - 2021
 resp2021_query <- "SELECT *
                   FROM CPES.NC_2021_RESPONDENTS@casref01 cpes, CPES.NC_21_LINK_RES_CAS2306@casref01 ln, AV2021.AT_TUMOUR_ENGLAND@casref01 at
@@ -59,21 +70,39 @@ resp2017 <- dbGetQueryOracle(casref01, resp2017_query, rowlimit = NA)
 resp2017 <- resp2017[, !duplicated(colnames(resp2017))]
 
 #add year labels and bind rows 
+resp2022$datayear <- 2022
 resp2021$datayear <- 2021
 resp2019$datayear <- 2019
 resp2018$datayear <- 2018
 resp2017$datayear <- 2017
 
+resp2022 <- resp2022 %>% mutate_all(as.character)
 resp2021 <- resp2021 %>% mutate_all(as.character)
 resp2019 <- resp2019 %>% mutate_all(as.character)
 resp2018 <- resp2018 %>% mutate_all(as.character)
 resp2017 <- resp2017 %>% mutate_all(as.character)
 
-resp_data <- bind_rows(resp2021, resp2019, resp2018, resp2017)
+resp_data <- bind_rows(resp2022, resp2021, resp2019, resp2018, resp2017)
 
 
 ########### Adding in deprivation ########### 
-#2021 IMD data extract
+#2022 IMD data extract-----
+imd2022_query <- "select 
+                      at.patientid, 
+                      at.tumourid,
+                      g.lsoa11_code,
+                      d.imd19_decile_lsoas,
+                      d.imd19_quintile_lsoas
+                  from cpes.nc_2022_respondents@casref01 cpes
+                  join cpes.nc_2022_linkage_res_cas2403@casref01 ln on cpes.cpes_prn = ln.cpes_prn
+                  join av2021.at_tumour_england@casref01 at on ln.avtum_patientid = at.patientid and ln.avtum_tumourid = at.tumourid
+                  left join av2021.at_geography_england@casref01 g on at.tumourid = g.tumourid
+                  left join imd.imd2019_equal_lsoas@casref01 d on g.lsoa11_code = d.lsoa11_code
+                  where ln.final_unique = 1"
+
+imd2022 <- dbGetQueryOracle(casref01, imd2022_query, rowlimit = NA)
+
+#2021 IMD data extract-----
 imd2021_query <- "select 
                       at.patientid, 
                       at.tumourid,
@@ -89,7 +118,7 @@ imd2021_query <- "select
 
 imd2021 <- dbGetQueryOracle(casref01, imd2021_query, rowlimit = NA)
 
-#2019 IMD data extract
+#2019 IMD data extract----
 imd2019_query <- "select 
                       at.patientid, 
                       at.tumourid,
@@ -105,7 +134,7 @@ imd2019_query <- "select
 
 imd2019 <- dbGetQueryOracle(casref01, imd2019_query, rowlimit = NA)
 
-#2018 IMD data extract
+#2018 IMD data extract-----
 imd2018_query <- "select 
                       at.patientid, 
                       at.tumourid,
@@ -121,7 +150,7 @@ imd2018_query <- "select
 
 imd2018 <- dbGetQueryOracle(casref01, imd2018_query, rowlimit = NA)
 
-#2017 IMD data extract
+#2017 IMD data extract-----
 imd2017_query <- "select 
                       at.patientid, 
                       at.tumourid,
@@ -138,12 +167,13 @@ imd2017_query <- "select
 imd2017 <- dbGetQueryOracle(casref01, imd2017_query, rowlimit = NA)
 
 #add year labels and bind rows 
+imd2022$datayear <- 2022
 imd2021$datayear <- 2021
 imd2019$datayear <- 2019
 imd2018$datayear <- 2018
 imd2017$datayear <- 2017
 
-imd_data <- bind_rows(imd2021, imd2019, imd2018, imd2017)
+imd_data <- bind_rows(imd2022, imd2021, imd2019, imd2018, imd2017)
 
 #checking for LSOA variation in different responses for the same tumour (linking IMD based on tumour not patient as looking at IMD at diag)
 imd_data_check <- imd_data %>%
@@ -160,4 +190,4 @@ imd_data <- imd_data %>%
 #link to resp_data table 
 resp_data <- left_join(resp_data, imd_data, by = c("TUMOURID" = "TUMOURID"), relationship = "many-to-one")
 
-write.csv(resp_data, "N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Data/Raw respondent data with IMD 20240213.csv")
+write.csv(resp_data, "N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Data/Raw respondent data with IMD 20240517.csv")
