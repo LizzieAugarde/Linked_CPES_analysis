@@ -20,13 +20,13 @@ resp_data <- read.csv("N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-regi
 #data prep
 #sexuality variable to binary
 resp_data <- resp_data %>% ####different question in different years
-  mutate(sexuality = case_when(datayear == 2021 & Q66 == 1 ~ "Heterosexual", 
-                                    datayear == 2021 & Q66 == 2 ~ "Gay or lesbian", 
-                                    datayear == 2021 & Q66 == 3 ~ "Bisexual", 
-                                    datayear == 2021 & Q66 == 4 ~ "Other", 
-                                    datayear == 2021 & Q66 == 5 ~ "Prefer not to say", 
-                                    datayear == 2021 & Q66 == 6 ~ "Don't know/not sure", 
-                                    datayear == 2021 & Q66 == 999 ~ "Missing", 
+  mutate(sexuality = case_when(datayear %in% c(2021,2022) & Q66 == 1 ~ "Heterosexual", 
+                                    datayear %in% c(2021,2022) & Q66 == 2 ~ "Gay or lesbian", 
+                                    datayear %in% c(2021,2022) & Q66 == 3 ~ "Bisexual", 
+                                    datayear %in% c(2021,2022) & Q66 == 4 ~ "Other", 
+                                    datayear %in% c(2021,2022) & Q66 == 5 ~ "Prefer not to say", 
+                                    datayear %in% c(2021,2022) & Q66 == 6 ~ "Don't know/not sure", 
+                                    datayear %in% c(2021,2022) & Q66 == 999 ~ "Missing", 
                                     datayear == 2019 & Q67 == 1 ~ "Heterosexual",
                                     datayear == 2019 & Q66 == 2 ~ "Gay or lesbian", 
                                     datayear == 2019 & Q66 == 3 ~ "Bisexual", 
@@ -47,8 +47,8 @@ resp_data <- resp_data %>% ####different question in different years
                                    TRUE ~ "Missing")) 
 #language status variable to binary
 resp_data <- resp_data %>% ####different question in different years
-  mutate(lang_stat = case_when(datayear == 2021 & Q70 == 1 ~ "Native English speaker", 
-                               datayear == 2021 & Q70 == 2 ~ "Non-native English speaker",
+  mutate(lang_stat = case_when(datayear %in% c(2021,2022) & Q70 == 1 ~ "Native English speaker", 
+                               datayear %in% c(2021,2022) & Q70 == 2 ~ "Non-native English speaker",
                                datayear == 2019 & Q71 == 1 ~ "Native English speaker", 
                                datayear == 2019 & Q71 == 2 ~ "Non-native English speaker",
                                datayear %in% c(2018, 2017) & Q68 == 1 ~ "Native English speaker", 
@@ -68,7 +68,7 @@ sexuality_comp <- resp_data %>%
   mutate(percent = (count/sum(count))*100)
 
 write.xlsx(as.data.frame(sexuality_comp), 
-           "N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Results/Basic characteristics composition 20240105.xlsx",
+           "N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Results/Basic characteristics composition 20240517.xlsx",
            sheetName = "Sexuality", row.names = FALSE, append = TRUE)
 
 
@@ -79,7 +79,7 @@ language_comp <- resp_data %>%
   mutate(percent = (count/sum(count))*100)
 
 write.xlsx(as.data.frame(language_comp), 
-           "N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Results/Basic characteristics composition 20240105.xlsx",
+           "N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Results/Basic characteristics composition 20240517.xlsx",
            sheetName = "Language status", row.names = FALSE, append = TRUE)
 
 
