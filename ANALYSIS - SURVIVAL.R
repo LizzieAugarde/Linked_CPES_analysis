@@ -159,6 +159,8 @@ write.xlsx(as.data.frame(surv_5yr_language),
 library(survival)
 library(ggsurvfit)
 library(gtsummary)
+library(ggplot2)
+library(survminer)
 
 surv_data <- resp_data %>%
   select(DIAGNOSISDATEBEST, DEATHDATEBEST, daystodeath, status_1yr, status_5yr, sexuality, sexuality_bin, lang_stat)
@@ -168,14 +170,32 @@ surv_1yr <- Surv(surv_data$daystodeath, surv_data$status_1yr)
 s1 <- survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_data)
 str(s1)
 
-summary(survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_data), times = 365.25)
-survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_data) %>% 
-  tbl_survfit(
-    times = 365.25,
-    label_header = "**1-year survival (95% CI)**"
-  )
+summ_1yr <- survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_data)
+summ_5yr <- survfit(Surv(daystodeath, status_5yr) ~ 1, data = surv_data)
+
+summary(summ_1yr, times = 365)
+summary(summ_5yr, times = 1825)
+
+ggplot2::autoplot(summ_5yr)
 
 survdiff(Surv(daystodeath, status_1yr) ~ sexuality_bin, data = filter(surv_data, sexuality_bin != "Missing"))
 survdiff(Surv(daystodeath, status_5yr) ~ sexuality_bin, data = filter(surv_data, sexuality_bin != "Missing"))
 survdiff(Surv(daystodeath, status_1yr) ~ lang_stat, data = filter(surv_data, lang_stat != "Missing"))
 survdiff(Surv(daystodeath, status_5yr) ~ lang_stat, data = filter(surv_data, lang_stat != "Missing"))
+
+sexuality <- survfit(Surv(daystodeath, status_5yr) ~ sexuality_bin, data = filter(surv_data, sexuality_bin != "Missing"))
+language <- survfit(Surv(daystodeath, status_5yr) ~ lang_stat, data = filter(surv_data, lang_stat != "Missing"))
+
+ggsurvplot(sexuality, pval = TRUE, conf.int = TRUE,
+           risk.table = TRUE)
+
+summary(sexuality)$table
+
+ggsurvplot(language, pval = TRUE, conf.int = TRUE,
+           risk.table = TRUE, xlim = c(0, 2000))
+
+summary(language)$table
+
+
+https://www.sthda.com/english/wiki/survival-analysis-basics#compute-survival-curves-survfit
+https://www.emilyzabor.com/tutorials/survival_analysis_in_r_tutorial.html#Part_1:_Introduction_to_Survival_Analysis
