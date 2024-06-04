@@ -11,10 +11,20 @@
 
 library(xlsx)
 
-########### 1yr survival dataset for analysis ###########
+########### Creating survival variables ########### 
+resp_data <- resp_data %>%
+  mutate(DIAGNOSISDATEBEST = as.Date(DIAGNOSISDATEBEST),
+         DEATHDATEBEST = as.Date(DEATHDATEBEST)) %>%
+  mutate(daystodeath = difftime(as.Date(DEATHDATEBEST), as.Date(DIAGNOSISDATEBEST), units = "days")) %>%
+  mutate(survival_1yr = ifelse(daystodeath > 365 | is.na(daystodeath), "Yes", "No")) %>%
+  mutate(survival_5yr = ifelse(daystodeath > 1825 | is.na(daystodeath), "Yes", "No"),
+         status_1yr = ifelse(daystodeath > 365 | is.na(daystodeath), 0, 1),
+         status_5yr = ifelse(daystodeath > 1825 | is.na(daystodeath), 0, 1))
+
+########### 1yr survival dataset for descriptive analysis ###########
 surv_1yr_data <- resp_data %>%
   select(-starts_with("Q")) %>%
-  filter((DIAGNOSISDATEBEST + 365) < "2022-01-01") #filtering to just those with at least 1 year 'available' from diag date
+  filter((DIAGNOSISDATEBEST + 365) < "2023-01-01") #filtering to just those with at least 1 year 'available' from diag date
 
 #multiple responses 
 surv_1yr_data_dups_check <- surv_1yr_data  %>%
@@ -78,7 +88,7 @@ write.xlsx(as.data.frame(surv_1yr_language),
            sheetName = "1yr survival language", row.names = FALSE, append = TRUE)
 
 
-########### 5yr survival dataset for analysis ###########
+########### 5yr survival dataset for descriptive analysis ###########
 surv_5yr_data <- resp_data %>%
   select(-starts_with("Q")) %>%
   filter((DIAGNOSISDATEBEST + 1825) < "2022-01-01") #filtering to just those with at least 5 years 'available' from diag date
@@ -145,4 +155,27 @@ write.xlsx(as.data.frame(surv_5yr_language),
            sheetName = "5yr survival language", row.names = FALSE, append = TRUE)
 
 
-########### Regression ########### 
+########### Surv package analysis ########### 
+library(survival)
+library(ggsurvfit)
+library(gtsummary)
+
+surv_data <- resp_data %>%
+  select(DIAGNOSISDATEBEST, DEATHDATEBEST, daystodeath, status_1yr, status_5yr, sexuality, sexuality_bin, lang_stat)
+
+surv_1yr <- Surv(surv_data$daystodeath, surv_data$status_1yr)
+
+s1 <- survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_data)
+str(s1)
+
+summary(survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_data), times = 365.25)
+survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_data) %>% 
+  tbl_survfit(
+    times = 365.25,
+    label_header = "**1-year survival (95% CI)**"
+  )
+
+survdiff(Surv(daystodeath, status_1yr) ~ sexuality_bin, data = filter(surv_data, sexuality_bin != "Missing"))
+survdiff(Surv(daystodeath, status_5yr) ~ sexuality_bin, data = filter(surv_data, sexuality_bin != "Missing"))
+survdiff(Surv(daystodeath, status_1yr) ~ lang_stat, data = filter(surv_data, lang_stat != "Missing"))
+survdiff(Surv(daystodeath, status_5yr) ~ lang_stat, data = filter(surv_data, lang_stat != "Missing"))

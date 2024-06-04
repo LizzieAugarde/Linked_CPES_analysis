@@ -8,6 +8,7 @@
 #05/01/2024 converted this script to do the basic population stats rather than
 #the characteristics analysis which will happen in a different script. Added 
 #cleaning confounders, missing data analysis and creation of survival variables
+#04/06/2024 moved survival variables to ANALYSIS-SURVIVAL script
 ############################################################################# 
 
 #prep
@@ -95,13 +96,7 @@ resp_data <- resp_data %>%
   mutate(ETHNICITY = ifelse(ETHNICITY == "0", NA, ETHNICITY))
 
 
-########### Binary survival variables ########### 
-resp_data  <- resp_data  %>%
-  mutate(DIAGNOSISDATEBEST = as.Date(DIAGNOSISDATEBEST),
-         DEATHDATEBEST = as.Date(DEATHDATEBEST)) %>%
-  mutate(daystodeath = difftime(as.Date(DEATHDATEBEST), as.Date(DIAGNOSISDATEBEST), units = "days")) %>%
-  mutate(survival_1yr = ifelse(daystodeath > 365 | is.na(daystodeath), "Yes", "No")) %>%
-  mutate(survival_5yr = ifelse(daystodeath > 1825 | is.na(daystodeath), "Yes", "No"))
+
   
 
 
