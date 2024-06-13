@@ -244,6 +244,7 @@
     }
     .reveal .slide:not(.center) {
       height: 100%;
+      overflow-y: auto;
     }
     .reveal .slide.scrollable {
       overflow-y: auto;
@@ -341,14 +342,14 @@ Lizzie Augarde
 
   <p class="date">2024-10-06</p>
 </section>
-<section id="methodology" class="slide level2">
-<h2>Methodology</h2>
+<section id="background-and-methods" class="slide level2">
+<h2>Background and methods</h2>
 <p>The England National Cancer Patient Experience Survey (NCPES) allows cancer patients to give feedback on the care they have received. Results from the survey can be used to improve the experience of cancer patients at a national, regional and local level.</p>
 <p>NCPES is delivered to a sample of patients who receive inpatient care for their cancer during April-June of each year. NDRS links NCPES response data to the cancer registry data. This allows for the analysis of clinical information for those completing the survey.</p>
-<p>Linked CPES-registry data is currently available for NCPES years 2017-2022. Each year, approximately 50,000 responses to NCPES are received, meaning there is a total of 254,504 patients in the cohort for this analysis.</p>
+<p>Linked NCPES-registry data is currently available for NCPES years 2017-2022. Each year, approximately 50,000 responses to NCPES are received, meaning there is a total of 254,504 patients in the cohort for this analysis.</p>
 <p>The survey asks the following questions:</p>
-<p>Q: Which of the following options best describes how you think of yourself? Answers: Heterosexual or Straight/ Gay or Lesbian / Bisexual / Other / Prefer not to say / Don’t know/not sure</p>
-<p>Q: Is English your first language? Answers: Yes/No</p>
+<p><strong>Q:</strong> Which of the following options best describes how you think of yourself? Answers: Heterosexual or Straight/ Gay or Lesbian / Bisexual / Other / Prefer not to say / Don’t know/not sure</p>
+<p><strong>Q:</strong> Is English your first language? Answers: Yes/No</p>
 <p>Therefore, it is possible to use linked NCPES-registry data to analyse variation in clinical characteristics by sexuality and language status. These characteristics are not routinely recorded anywhere else in the cancer registry data, meaning this dataset offers a unique opportunity to identify any inequalities in outcomes by these characteristics. STUFF FROM PROPOSAL.</p>
 </section>
 <section id="overall-composition-of-respondents" class="slide level2">
@@ -356,10 +357,9 @@ Lizzie Augarde
 <div class="cell">
 <div class="cell-output-display">
 <table class="table table-condensed" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto;">
-<caption><strong>Number of CPES respondents by survey year</strong></caption>
 <thead>
 <tr class="header">
-<th style="text-align: center;" data-quarto-table-cell-role="th">Year</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Survey year</th>
 <th style="text-align: center;" data-quarto-table-cell-role="th">Number of respondents</th>
 </tr>
 </thead>
@@ -390,15 +390,19 @@ Lizzie Augarde
 
 </div>
 </div>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">Sexuality composition</a></li><li><a href="#tabset-1-2">Language status composition</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
 <p>Each year, approximately 1.4% of respondents describe their sexuality as ‘gay or lesbian’, ‘bisexual’ or ‘other’. This equates to 3,660 respondents between 2017 and 2022.</p>
 <p>Approximately 7.3% of respondents respond ‘prefer not to say’, ‘don’t know/not sure’, or do not provide a response.</p>
+<p><strong>NCPES respondents by sexuality and survey year:</strong></p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="table table-condensed" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto;">
-<caption><strong>CPES respondents by sexuality and survey year</strong></caption>
 <thead>
 <tr class="header">
-<th style="text-align: center;" data-quarto-table-cell-role="th">Year</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Survey year</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">Sexuality</th>
 <th style="text-align: center;" data-quarto-table-cell-role="th">Number of respondents</th>
 <th style="text-align: center;" data-quarto-table-cell-role="th">Percentage of respondents</th>
@@ -491,15 +495,17 @@ Lizzie Augarde
 
 </div>
 </div>
+</div>
+<div id="tabset-1-2">
 <p>Each year, approximately 4.6% of respondents state that English is not their first language. This equates to 11,759 respondents between 2017 and 2022.</p>
 <p>Approximately 4.1% of respondents do not provide a response to this question.</p>
+<p><strong>NCPES respondents by language status and survey year:</strong></p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="table table-condensed" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto;">
-<caption><strong>CPES respondents by language status and survey year</strong></caption>
 <thead>
 <tr class="header">
-<th style="text-align: center;" data-quarto-table-cell-role="th">Year</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Survey year</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">Language status</th>
 <th style="text-align: center;" data-quarto-table-cell-role="th">Number of respondents</th>
 <th style="text-align: center;" data-quarto-table-cell-role="th">Percentage of respondents</th>
@@ -592,35 +598,111 @@ Lizzie Augarde
 
 </div>
 </div>
+</div>
+</div>
+</div>
 </section>
-<section id="sexuality-and-routes-to-diagnosis" class="slide level2">
-<h2>Sexuality and routes to diagnosis</h2>
+<section id="routes-to-diagnosis" class="slide level2">
+<h2>Routes to diagnosis</h2>
 <p>There is evidence of large variation in survival between those diagnosed via different routes. Exploring routes to diagnosis supports initiatives to promote earlier diagnosis of cancer and thereby improve survival rates and reduce cancer mortality. Differences in cancer outcomes between people with different sexualities and proficiency in English could be related to differences in how groups are likely to be diagnosed.</p>
-<p>Analysis of CPES responses linked to routes to diagnosis information from the NDRS cancer registry shows that most respondents are diagnosed via urgent suspected cancer (USC) referrals (previously known as two-week wait/TWW referrals), followed by other GP referral routes, then screening. This reflects the pattern among all cancer patients shown in national routes to diagnosis data in years prior to 2020.</p>
-<p>A higher proportion of respondents who describe their sexuality as gay, lesbian, or other, are diagnosed via screening compared to the proportion of those describing themselves as heterosexual. Otherwise, the distribution of respondents across the different routes to diagnosis is very similar for heterosexual and sexual minority respondents.</p>
-
-<img data-src="Initial-results-deck-20240610_files/figure-revealjs/rtd_sexuality-1.png" width="960" class="r-stretch"><p>However, when accounting for confounders, including age at diagnosis and tumour type,…….</p>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">Language status and all routes</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
+<p><strong>Research question</strong>: is the distribution of patients by route to diagnosis similar for non-native English-speaking patients, compared to native English speaking patients?</p>
+<p>A higher proportion of respondents who are non-native English-speaking patients are diagnosed via emergency presentation, compared to native English-speaking patients. A lower proportion are diagnosed via screening or USC referrals. Otherwise, the distribution of respondents across the different routes to diagnosis is similar for native English-speaking and non-native English-speaking patients.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img data-src="Initial-results-deck-20240610_files/figure-revealjs/rtd_language-1.png" width="960"></p>
+</div>
+</div>
+<p>##Language status and emergency presentation</p>
+<p><strong>Research question</strong>: are non-native English-speaking patients more likely to be diagnosed via emergency presentation than native English speaking patients, accounting for other factors?</p>
+<p>Logistic regression analysis of the association between reported language status and route to diagnosis, which accounted for patient age, deprivation, ethnicity, and tumour type, indicates there is <strong>no association</strong> between language status and likelihood of emergency presentation; non-native English-speaking patients are no more likely to be diagnosed via emergency presentation than English-speaking patients, accounting for these other factors.</p>
+<p>##Language status and screening</p>
+<p><strong>Research question</strong>: are non-native English-speaking patients more likely to be diagnosed via screening than native English-speaking patients, accounting for other factors?</p>
+<p>Logistic regression analysis of the association between reported language status and route to diagnosis, which accounted for patient age, deprivation, ethnicity, and tumour type, indicates there is <strong>no association</strong> between language status and likelihood of screening; non-native English-speaking patients are no more likely to be diagnosed via screening than English-speaking patients, accounting for these other factors.</p>
+</div>
+</div>
+</div>
 </section>
-<section id="language-status-and-routes-to-diagnosis" class="slide level2">
-<h2>Language status and routes to diagnosis</h2>
-<p>A higher proportion of respondents who are non-native English speakers are diagnosed via emergency presentation, compared to native English speakers. A lower proportion are diagnosed via screening or USC referrals. Otherwise, the distribution of respondents across the different routes to diagnosis is similar for native English speakers and non-native English speakers.</p>
-
-<img data-src="Initial-results-deck-20240610_files/figure-revealjs/rtd_language-1.png" width="960" class="r-stretch"><p>However, when accounting for confounders, including age at diagnosis and tumour type,…….</p>
-</section>
-<section id="sexuality-and-stage-at-diagnosis" class="slide level2">
-<h2>Sexuality and stage at diagnosis</h2>
+<section id="stage-at-diagnosis" class="slide level2">
+<h2>Stage at diagnosis</h2>
 <p>Route to diagnosis is closely associated with stage at diagnosis, which is a key predictor of cancer mortality. Early stage at diagnosis is a key aim of the NHS Long-Term plan. As with routes to diagnosis, differences in cancer outcomes between people with different sexualities and proficiency in English could be related to how early different groups are likely to have their cancer diagnosed.</p>
+<div class="panel-tabset">
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">Sexuality</a></li><li><a href="#tabset-3-2">Language status</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1">
+<p><strong>Research question</strong>: are the proportions of patients diagnosed at early and late stage similar for those patients who describe themselves as something other than heterosexual, compared to heterosexual patients?</p>
 <p>Analysis of CPES responses linked to stage at diagnosis information from the NDRS cancer registry indicates that a lower proportion of respondents describing their sexuality as gay, lesbian, or other, are diagnosed at a later stage (stage 3 or 4), compared to heterosexual respondents.</p>
-
-<img data-src="Initial-results-deck-20240610_files/figure-revealjs/stage_sexuality-1.png" width="960" class="r-stretch"><p>However, when accounting for confounders, including age at diagnosis and tumour type,…….</p>
-</section>
-<section id="language-status-and-stage-at-diagnosis" class="slide level2">
-<h2>Language status and stage at diagnosis</h2>
+<div class="cell">
+<div class="cell-output-display">
+<p><img data-src="Initial-results-deck-20240610_files/figure-revealjs/stage_sexuality-1.png" width="960"></p>
+</div>
+</div>
+<p><strong>Research question</strong>: are patients who describe themselves as something other than heterosexual more likely to be diagnosed at late stage than heterosexual patients, accounting for other factors?</p>
+<p>Logistic regression analysis of the association between reported sexuality and stage at diagnosis, which accounted for patient age, deprivation, ethnicity, and tumour type, indicates there is <strong>no association</strong> between sexuality and stage at diagnosis; patients describing themselves as something other than heterosexual are no more likely to be diagnosed at late stage than heterosexual patients, accounting for these other factors.</p>
+</div>
+<div id="tabset-3-2">
+<p><strong>Research question</strong>: are the proportions of patients diagnosed at early and late stage similar for non-native English speaking patients, compared to native English speaking patients?</p>
 <p>Analysis of CPES responses linked to stage at diagnosis information from the NDRS cancer registry indicates that respondents describing themselves as non-native English speakers were less likely to be diagnosed at a later stage than native English speaking respondents.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img data-src="Initial-results-deck-20240610_files/figure-revealjs/stage_language-1.png" width="960"></p>
+</div>
+</div>
+<p><strong>Research question</strong>: are non-native English-speaking patients more likely to be diagnosed at late stage than native English-speaking patients, accounting for other factors?</p>
+<p>Logistic regression analysis of the association between reported language status and stage at diagnosis, which accounted for patient age, deprivation, ethnicity, and tumour type, indicates <strong>there is an association</strong> between language status and stage at diagnosis. The odds of non-native English-speaking patients being diagnosed late are 0.89 times the odds of English-speaking patients being diagnosed late. This means the adjusted likelihood of late diagnosis for non-English speaking patients is 47.2%, compared to approximately 52.8% for English-speaking patients.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="survival" class="slide level2">
+<h2>Survival</h2>
+<p>BLURB</p>
+<div class="panel-tabset">
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">Sexuality</a></li><li><a href="#tabset-4-2">Language status</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1">
+<p><strong>Research question</strong>: are the proportions of patients who survive at least 1 year after diagnosis similar for those patients who describe themselves as something other than heterosexual, compared to heterosexual patients?</p>
+<p><strong>Research question</strong>: are the proportions of patients who survive at least 5 years after diagnosis similar for those patients who describe themselves as something other than heterosexual, compared to heterosexual patients?</p>
+<p>Analysis of CPES responses linked to dates of death from the NDRS cancer registry indicates that respondents describing themselves as</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img data-src="Initial-results-deck-20240610_files/figure-revealjs/survival_sexuality-1.png" width="960"></p>
+</div>
+</div>
+<p><strong>Research question</strong>: are patients who describe themselves as something other than heterosexual more likely to survive at least 1 year after diagnosis than heterosexual patients, accounting for other factors?</p>
+<p><strong>Research question</strong>: are patients who describe themselves as something other than heterosexual more likely to survive at least 5 years after diagnosis than heterosexual patients, accounting for other factors?</p>
+<p>Kaplan-Meier survival analysis indicates there is <strong>no difference</strong> between the probability of survival at least 1 year (log rank test chi-squared statistic = 1.9, p = 0.2) post-diagnosis, between those respondents describing themselves as something other than heterosexual, and heterosexual respondents.</p>
+<p>At 5 years post-diagnosis, there is <strong>evidence of a difference</strong> in survival probability by sexuality (log rank test chi-squared statistic 4.5, p &lt;0.05). The heterosexual group experiences a higher observed number of deaths compared to what would be expected if survival were the same across both sexuality groups.</p>
+<p>However, after accounting for age, ethnicity, cancer type, deprivation and stage at diagnosis, this association is <strong>no longer statistically meaningful</strong> (p = 0.8).</p>
+</div>
+<div id="tabset-4-2">
+<p><strong>Research question</strong>: are the proportions of patients who survive at least 1 year after diagnosis similar for non-native English speaking patients, compared to English speaking patients?</p>
+<p><strong>Research question</strong>: are the proportions of patients who survive at least 5 years after diagnosis similar for non-native English speaking patients, compared to English speaking patients?</p>
+<p>Analysis of CPES responses linked to dates of death from the NDRS cancer registry indicates that respondents describing …</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img data-src="Initial-results-deck-20240610_files/figure-revealjs/survival_language-1.png" width="960"></p>
+</div>
+</div>
+<p><strong>Research question</strong>: are non-native English speaking patients more likely to survive at least 1 year after diagnosis than English speaking patients, accounting for other factors?</p>
+<p><strong>Research question</strong>: are non-native English speaking patients more likely to survive at least 5 years after diagnosis than English speaking patients, accounting for other factors?</p>
+<p>Kaplan-Meier survival analysis indicates there is <strong>strong evidence</strong> of a difference between the probability of survival at least 1 year (log rank test chi-squared statistic = 25.1, p &lt;0.0001) and 5 years (47.7, p &lt;0.0001) post-diagnosis, between non-Native English-speaking respondents, and English-speaking respondents. The Native English-speaking group experiences a higher observed number of deaths compared to what would be expected if survival were the same across both language status groups.</p>
+<p>However, after accounting for age, ethnicity, cancer type, deprivation and stage at diagnosis, <strong>neither of these associations are statistically meaningful</strong> (1 year survival: p = 0.3, 5 year survival: p = 0.1).</p>
+</div>
+</div>
+</div>
+</section>
+<section id="conclusions" class="slide level2">
+<h2>Conclusions</h2>
+<p>This analysis indicates that, after accounting for confounding factors, there is no evidence of statistically meaningful associations between NCPES respondents’ sexuality and and routes to diagnosis, stage to diagnosis, or survival. There is also no evidence of statistically meaningful associations between NCPES respondents’ language status and and routes to diagnosis or survival.</p>
+<p>There is some evidence of an association between language status and stage at diagnosis. After accounting for confounders, non-native English-speaking respondents are slightly less likely than English-speaking respondents to be diagnosed at a late stage.</p>
+<p>This analysis suggests there is little inequality in diagnostic characteristics and survival by sexuality or language status, which is not accounted for by the demographic composition of these groups.</p>
 
-<img data-src="Initial-results-deck-20240610_files/figure-revealjs/stage_language-1.png" width="960" class="r-stretch"><p>However, when accounting for confounders, including age at diagnosis and tumour type,…….</p>
-<div class="footer footer-default">
-
+<img src="Logo.png" class="slide-logo r-stretch"><div class="footer footer-default">
+<p>For internal use only</p>
 </div>
 </section>
     </div>
@@ -649,13 +731,13 @@ Lizzie Augarde
       Reveal.initialize({
 'controlsAuto': true,
 'previewLinksAuto': false,
-'smaller': false,
+'smaller': true,
 'pdfSeparateFragments': false,
 'autoAnimateEasing': "ease",
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
-'smaller': false,
+'smaller': true,
  
         // Display controls in the bottom right corner
         controls: false,
@@ -800,7 +882,7 @@ Lizzie Augarde
         // The "normal" size of the presentation, aspect ratio will be preserved
         // when the presentation is scaled to fit different resolutions. Can be
         // specified using percentage units.
-        width: 1050,
+        width: 1000,
 
         height: 700,
 
