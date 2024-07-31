@@ -13,28 +13,8 @@ library(xlsx)
 #prep staging functions 
 source("stage_functions_tidy.R")
 
-stage_data <- stage_table(resp_data) 
-
-#combining into 2 level stage variable 
-stage_data <- stage_data %>%
-  mutate(STAGE_2LEVEL = case_when(STAGE %in% c("1", "2", "Staged - other early") ~ "Early",
-                                  STAGE %in% c("3", "4", "Staged - other advanced") ~ "Late",
-                                  STAGE %in% c("Error", "Unstageable", "Missing") ~ "Not available")) %>%
-  select(-starts_with("Q"))
-
 #trans patient fix from 02_data_tidying_tidy.R received from Chloe Bright
-stage_data <- stage_data %>% mutate(
-  STAGE_PI = if_else(
-    condition = (
-      (
-        (GENDER == 2 & SITE_ICD10R4_O2_3CHAR_FROM2013 %in% c("C60", "C61", "C62", "C63")) |
-          (GENDER == 1 & SITE_ICD10R4_O2_3CHAR_FROM2013 %in% c("C51", "C52", "C53", "C54", "C55", "C56", "C57", "C58"))
-      ) &
-        !(STAGE_BEST == "?" | is.na(STAGE_BEST))
-    ),
-    true = "Y",
-    false = STAGE_PI
-  ),
+stage_data <- resp_data %>% mutate(
   STAGE_PI_DETAIL = if_else(
     condition = (
       (
@@ -47,6 +27,16 @@ stage_data <- stage_data %>% mutate(
     false = STAGE_PI_DETAIL
   )
 )
+
+#running staging function
+stage_data <- stage_table(stage_data) 
+
+#combining into 2 level stage variable 
+stage_data <- stage_data %>%
+  mutate(STAGE_2LEVEL = case_when(STAGE %in% c("1", "2", "Staged - other early") ~ "Early",
+                                  STAGE %in% c("3", "4", "Staged - other advanced") ~ "Late",
+                                  STAGE %in% c("Error", "Unstageable", "Missing") ~ "Not available")) %>%
+  select(-starts_with("Q"))
 
 #removing unstageable tumours
 stage_data <- stage_data %>%

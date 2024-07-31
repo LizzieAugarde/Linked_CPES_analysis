@@ -11,7 +11,7 @@
 
 ########### Dataset for RTD analysis ########### 
 rtd_data <- resp_data %>%
-  filter(datayear %in% c(2017, 2018, 2019)) %>%
+  filter(datayear %in% c(2017, 2018, 2019)) %>% #note re why these years
   select(-starts_with("Q")) %>%
   mutate(FINAL_ROUTE = ifelse(FINAL_ROUTE == "TWW", "Urgent suspected cancer referral", FINAL_ROUTE)) %>%
   mutate(FINAL_ROUTE = ifelse(is.na(FINAL_ROUTE), "Missing", FINAL_ROUTE))

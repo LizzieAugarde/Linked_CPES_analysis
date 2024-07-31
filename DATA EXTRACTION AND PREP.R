@@ -233,6 +233,8 @@ resp_data <- resp_data %>% ####different question in different years
 
 
 ########### Cleaning confounder data ########### 
+
+#note re checking other confoudners
 resp_data <- resp_data %>%
   mutate(ETHNICITY = ifelse(ETHNICITY == "0", NA, ETHNICITY))
 
@@ -240,3 +242,4 @@ resp_data <- resp_data %>%
 ########### Saving env ########### 
 #saving the environment so objects can be loaded and used in Quarto doc
 save(resp_data, file = "resp_data.RData")
+
