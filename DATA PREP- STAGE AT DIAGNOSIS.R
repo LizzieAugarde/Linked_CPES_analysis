@@ -6,7 +6,6 @@
 #Created February 2024 by Lizzie Augarde 
 ############################################################################# 
 
-library(xlsx) 
 
 ########### Dataset for stage analysis ########### 
 #prep staging functions 
@@ -62,7 +61,6 @@ stage_data <- rbind(stage_data_single_response, stage_data_dups_rank)
 #check 
 length(unique(stage_data$PATIENTID))
 
-########### Saving env ########### 
-#saving the environment so objects can be loaded and used in Quarto doc
+########### Saving data ########### 
 save(stage_data, file = "stage_data.RData")
 

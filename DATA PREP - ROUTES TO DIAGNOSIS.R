@@ -34,9 +34,7 @@ rtd_data <- rbind(rtd_data_single_response, rtd_data_dups_rank)
 #check 
 length(unique(rtd_data$PATIENTID))
 
-#write.csv(rtd_data, "N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Data/RTD dataset for analysis.csv")
 
-########### Saving env ########### 
-#saving the environment so objects can be loaded and used in Quarto doc
+########### Saving data ########### 
 save(rtd_data, file = "rtd_data.RData")
 

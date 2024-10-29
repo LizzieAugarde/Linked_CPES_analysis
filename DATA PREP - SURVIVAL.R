@@ -52,8 +52,6 @@ surv_1yr_data <- rbind(surv_1yr_data_single_response, surv_1yr_data_dups_rank)
 #check 
 length(unique(surv_1yr_data$PATIENTID))
 
-#write.csv(surv_1yr_data, "N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Data/Survival 1yr dataset for analysis.csv")
-
 
 ########### 5yr survival dataset for descriptive analysis ###########
 surv_5yr_data <- surv_data |>
@@ -90,10 +88,7 @@ surv_5yr_data <- rbind(surv_5yr_data_single_response, surv_5yr_data_dups_rank)
 #check 
 length(unique(surv_5yr_data$PATIENTID))
 
-#write.csv(surv_5yr_data, "N:/INFO/_LIVE/NCIN/Macmillan_Partnership/Linked CPES-registry analysis/Data/Survival 5yr dataset for analysis.csv")
 
-
-########### Saving env ########### 
-#saving the environment so objects can be loaded and used in Quarto doc
+########### Saving data ########### 
 save(surv_1yr_data, file = "surv_1yr_data.RData")
 save(surv_5yr_data, file = "surv_5yr_data.RData")
