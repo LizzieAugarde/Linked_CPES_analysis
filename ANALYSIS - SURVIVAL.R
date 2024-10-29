@@ -4,9 +4,6 @@
 #CPES-registry data
 
 #Created January 2024 by Lizzie Augarde 
-#Change log:
-#14/02/2024 redoing survival datasets to use all patients with 1 and 5 years post-diag
-#available in COSD
 ############################################################################# 
 
 library(survival)
@@ -23,15 +20,15 @@ load("surv_1yr_data.RData")
 load("surv_5yr_data.RData")
 
 #data prep
-surv_1yr_data <- surv_1yr_data %>%
-  select(DIAGNOSISDATEBEST, DEATHDATEBEST, daystodeath, status_1yr, sexuality, sexuality_bin, lang_stat) %>%
-  ungroup() %>%
+surv_1yr_data <- surv_1yr_data |>
+  select(DIAGNOSISDATEBEST, DEATHDATEBEST, daystodeath, status_1yr, sexuality, sexuality_bin, lang_stat) |>
+  ungroup() |>
   mutate(daystodeath = ifelse(is.na(daystodeath), 366, 
                               ifelse(daystodeath > 366, 366, daystodeath)))
 
-surv_5yr_data <- surv_5yr_data %>%
-  select(DIAGNOSISDATEBEST, DEATHDATEBEST, daystodeath, status_5yr, sexuality, sexuality_bin, lang_stat) %>%
-  ungroup() %>%
+surv_5yr_data <- surv_5yr_data |>
+  select(DIAGNOSISDATEBEST, DEATHDATEBEST, daystodeath, status_5yr, sexuality, sexuality_bin, lang_stat) |>
+  ungroup() |>
   mutate(daystodeath = ifelse(is.na(daystodeath), 1826, 
                               ifelse(daystodeath > 1825, 1826, daystodeath)))
 
@@ -45,13 +42,13 @@ summ_1yr <- survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_1yr_data)
 summary(summ_1yr, times = 365) #overall 1yr survival probability 98.5% CI 98.5-98.6
 
 #sexual minority pop
-surv_1yr_data_sm <- surv_1yr_data %>% filter(sexuality_bin == "Sexual minority")
+surv_1yr_data_sm <- surv_1yr_data |> filter(sexuality_bin == "Sexual minority")
 summ_1yr_sm <- survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_1yr_data_sm)
 summary(summ_1yr_sm, times = 365)
 #98.8% 1yr survival probability for sexual minority, CI 98.5-99.2 
 
 #heterosexaul pop
-surv_1yr_data_het <- surv_1yr_data %>% filter(sexuality_bin == "Heterosexual")
+surv_1yr_data_het <- surv_1yr_data |> filter(sexuality_bin == "Heterosexual")
 summ_1yr_het <- survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_1yr_data_het)
 summary(summ_1yr_het, times = 365)
 #98.5% 1yr survival probability for heterosexual, CI 98.5-98.6 
@@ -68,13 +65,13 @@ ggsurvplot(surv_fits, combine = TRUE,
            ggtheme = theme_minimal())
 
 #NNES pop
-surv_1yr_data_nnes <- surv_1yr_data %>% filter(lang_stat == "Non-native English speaker")
+surv_1yr_data_nnes <- surv_1yr_data |> filter(lang_stat == "Non-native English speaker")
 summ_1yr_nnes <- survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_1yr_data_nnes)
 summary(summ_1yr_nnes, times = 365)
 #99.1% 1yr survival probability for NNES, CI 99.0-99.3  
 
 #NES pop
-surv_1yr_data_nes <- surv_1yr_data %>% filter(lang_stat == "Native English speaker")
+surv_1yr_data_nes <- surv_1yr_data |> filter(lang_stat == "Native English speaker")
 summ_1yr_nes <- survfit(Surv(daystodeath, status_1yr) ~ 1, data = surv_1yr_data_nes)
 summary(summ_1yr_nes, times = 365)
 #98.5% 1yr survival probability for NES, CI 98.5-98.6  
@@ -93,7 +90,7 @@ ggsurvplot(surv_fits, combine = TRUE,
 
 ######## 1 year comparative analyses ########
 #sexuality 
-surv_1yr_data_sex <- surv_1yr_data %>% filter(sexuality_bin != "Missing") 
+surv_1yr_data_sex <- surv_1yr_data |> filter(sexuality_bin != "Missing") 
 
 #difference by sexuality
 survdiff(Surv(daystodeath, status_1yr) ~ sexuality_bin, data = surv_1yr_data_sex) #log rank comparison no difference chisq = 1.9, p = 0.2
@@ -104,7 +101,7 @@ ggsurvplot(survfitsex, data = surv_1yr_data_sex, pval = TRUE, conf.int = TRUE, r
            ggtheme = theme_minimal()) #not useful
 
 #language
-surv_1yr_data_lang <- surv_1yr_data %>% filter(lang_stat != "Missing") 
+surv_1yr_data_lang <- surv_1yr_data |> filter(lang_stat != "Missing") 
 
 #difference by language 
 survdiff(Surv(daystodeath, status_1yr) ~ lang_stat, data = surv_1yr_data_lang) #log rank comparison true difference chisq = 25.1, p = <0.0001, surv prob lower for NES
@@ -115,12 +112,12 @@ ggsurvplot(survfitlang, data = surv_1yr_data_lang, pval = TRUE, conf.int = TRUE,
            ggtheme = theme_minimal()) #need to adapt this 
 
 #regression to account for age -----
-surv_1yr_lang_reg <- surv_1yr_data %>%
-  select(PATIENTID, status_1yr, lang_stat, AGE, IMD19_DECILE_LSOAS,SITE_ICD10_3CHAR, ETHNICITY, STAGE_BEST) %>%
-  ungroup() %>%
+surv_1yr_lang_reg <- surv_1yr_data |>
+  select(PATIENTID, status_1yr, lang_stat, AGE, IMD19_DECILE_LSOAS,SITE_ICD10_3CHAR, ETHNICITY, STAGE_BEST) |>
+  ungroup() |>
   #making dependent variable binary
-  mutate(status_1yr = factor(status_1yr)) %>% 
-  mutate(AGE = as.numeric(AGE)) %>%
+  mutate(status_1yr = factor(status_1yr)) |> 
+  mutate(AGE = as.numeric(AGE)) |>
   
   #excluding observations with missing values for any variables
   filter(lang_stat != "Missing",
@@ -137,56 +134,56 @@ train_data <- training(surv_1yr_lang_reg_split)
 test_data <- testing(surv_1yr_lang_reg_split)
 
 surv_1yr_lang <- 
-  recipe(status_1yr ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = train_data) %>%
+  recipe(status_1yr ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = train_data) |>
   step_dummy(all_nominal_predictors())
 
 #model
-model1 <- logistic_reg() %>%
-  set_engine("glm") %>%
+model1 <- logistic_reg() |>
+  set_engine("glm") |>
   fit(status_1yr ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = train_data)
 
 tidy(model1)
 
-model1_spec <- logistic_reg() %>%
+model1_spec <- logistic_reg() |>
   set_engine("glm") 
 
 model1_wflow <- 
-  workflow() %>% 
-  add_model(model1_spec) %>% 
+  workflow() |> 
+  add_model(model1_spec) |> 
   add_recipe(surv_1yr_lang)
 
 model1_fit <- 
-  model1_wflow %>% 
+  model1_wflow |> 
   fit(data = train_data)
 
-model1_fit %>% 
-  extract_fit_parsnip() %>% 
+model1_fit |> 
+  extract_fit_parsnip() |> 
   tidy()
 
 model1_aug <- augment(model1_fit, test_data)
-model1_aug %>% 
-  roc_curve(truth = status_1yr, .pred_1) %>% 
+model1_aug |> 
+  roc_curve(truth = status_1yr, .pred_1) |> 
   autoplot() 
 
-model1_aug %>% roc_auc(truth = status_1yr, .pred_1)
+model1_aug |> roc_auc(truth = status_1yr, .pred_1)
 
 #final model on full dataset 
-model1 <- logistic_reg() %>%
-  set_engine("glm") %>%
-  set_mode("classification") %>%
+model1 <- logistic_reg() |>
+  set_engine("glm") |>
+  set_mode("classification") |>
   fit(status_1yr ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = surv_1yr_lang_reg)
 
-model1_results <- tidy(model1) %>%
+model1_results <- tidy(model1) |>
   mutate(conf.low = exp(estimate - 1.96*std.error), 
-         conf.high = exp(estimate + 1.96*std.error)) %>%
-  mutate(estimate = exp(estimate)) %>%
+         conf.high = exp(estimate + 1.96*std.error)) |>
+  mutate(estimate = exp(estimate)) |>
   mutate(estimate = sprintf("%s", estimate),
          conf.low = sprintf("%s", conf.low),
          conf.high = sprintf("%s", conf.high),
-         p.value = sprintf("%s", p.value)) %>%
+         p.value = sprintf("%s", p.value)) |>
   
   #convert to probability 
-  mutate(prob = (as.numeric(estimate) / (1+as.numeric(estimate)))*100) %>%
+  mutate(prob = (as.numeric(estimate) / (1+as.numeric(estimate)))*100) |>
   mutate(prob = sprintf("%s", prob))
 #no association after accounting for age, p=0.3
 
@@ -199,13 +196,13 @@ summ_5yr <- survfit(Surv(daystodeath, status_5yr) ~ 1, data = surv_5yr_data)
 summary(summ_5yr, times = 1825) #overall 5yr survival probability 78.3% CI 78-78.6
 
 #sexual minority pop
-surv_5yr_data_sm <- surv_5yr_data %>% filter(sexuality_bin == "Sexual minority")
+surv_5yr_data_sm <- surv_5yr_data |> filter(sexuality_bin == "Sexual minority")
 summ_5yr_sm <- survfit(Surv(daystodeath, status_5yr) ~ 1, data = surv_5yr_data_sm)
 summary(summ_5yr_sm, times = 1825)
 #80.8% 5yr survival probability for sexual minority, CI 78.7-82.9 
 
 #heterosexual pop
-surv_5yr_data_het <- surv_5yr_data %>% filter(sexuality_bin == "Heterosexual")
+surv_5yr_data_het <- surv_5yr_data |> filter(sexuality_bin == "Heterosexual")
 summ_5yr_het <- survfit(Surv(daystodeath, status_5yr) ~ 1, data = surv_5yr_data_het)
 summary(summ_5yr_het, times = 1825)
 #78.4% 5yr survival probability for heterosexual, CI 78.1-78.7 
@@ -222,13 +219,13 @@ ggsurvplot(surv_fits, combine = TRUE,
            ggtheme = theme_minimal()) 
 
 #NNES pop
-surv_5yr_data_nnes <- surv_5yr_data %>% filter(lang_stat == "Non-native English speaker")
+surv_5yr_data_nnes <- surv_5yr_data |> filter(lang_stat == "Non-native English speaker")
 summ_5yr_nnes <- survfit(Surv(daystodeath, status_5yr) ~ 1, data = surv_5yr_data_nnes)
 summary(summ_5yr_nnes, times = 1825)
 #83.0% 5yr survival probability for NNES, CI 81.8-84.3  
 
 #NES pop
-surv_5yr_data_nes <- surv_5yr_data %>% filter(lang_stat == "Native English speaker")
+surv_5yr_data_nes <- surv_5yr_data |> filter(lang_stat == "Native English speaker")
 summ_5yr_nes <- survfit(Surv(daystodeath, status_5yr) ~ 1, data = surv_5yr_data_nes)
 summary(summ_5yr_nes, times = 1825)
 #78.0% 5yr survival probability for NES, CI 77.8-78.3
@@ -247,7 +244,7 @@ ggsurvplot(surv_fits, combine = TRUE,
 
 ######## 5 year comparative analyses ########
 #sexuality ----
-surv_5yr_data_sex <- surv_5yr_data %>% filter(sexuality_bin != "Missing") 
+surv_5yr_data_sex <- surv_5yr_data |> filter(sexuality_bin != "Missing") 
 
 #difference by sexuality
 survdiff(Surv(daystodeath, status_5yr) ~ sexuality_bin, data = surv_5yr_data_sex) #true difference chisq = 4.5, p = 0.03
@@ -258,12 +255,12 @@ plot <- ggsurvplot(survfitsex, data = surv_5yr_data_sex, pval = TRUE, conf.int =
            ggtheme = theme_minimal()) #this doesn't look great, not sure how to plot better, ylim doesn't work
 
 #regression to account for age -----
-surv_5yr_sex_reg <- surv_5yr_data %>%
-  select(PATIENTID, status_5yr, sexuality_bin, AGE, IMD19_DECILE_LSOAS,SITE_ICD10_3CHAR, ETHNICITY, STAGE_BEST) %>%
-  ungroup() %>%
+surv_5yr_sex_reg <- surv_5yr_data |>
+  select(PATIENTID, status_5yr, sexuality_bin, AGE, IMD19_DECILE_LSOAS,SITE_ICD10_3CHAR, ETHNICITY, STAGE_BEST) |>
+  ungroup() |>
   #making dependent variable binary
-  mutate(status_5yr = factor(status_5yr)) %>% 
-  mutate(AGE = as.numeric(AGE)) %>%
+  mutate(status_5yr = factor(status_5yr)) |> 
+  mutate(AGE = as.numeric(AGE)) |>
   
   #excluding observations with missing values for any variables
   filter(sexuality_bin != "Missing",
@@ -280,61 +277,61 @@ train_data <- training(surv_5yr_sex_reg_split)
 test_data <- testing(surv_5yr_sex_reg_split)
 
 surv_5yr_sex <- 
-  recipe(status_5yr ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = train_data) %>%
+  recipe(status_5yr ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = train_data) |>
   step_dummy(all_nominal_predictors())
 
 #model
-model1 <- logistic_reg() %>%
-  set_engine("glm") %>%
+model1 <- logistic_reg() |>
+  set_engine("glm") |>
   fit(status_5yr ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = train_data)
 
 tidy(model1)
 
-model1_spec <- logistic_reg() %>%
+model1_spec <- logistic_reg() |>
   set_engine("glm") 
 
 model1_wflow <- 
-  workflow() %>% 
-  add_model(model1_spec) %>% 
+  workflow() |> 
+  add_model(model1_spec) |> 
   add_recipe(surv_5yr_sex)
 
 model1_fit <- 
-  model1_wflow %>% 
+  model1_wflow |> 
   fit(data = train_data)
 
-model1_fit %>% 
-  extract_fit_parsnip() %>% 
+model1_fit |> 
+  extract_fit_parsnip() |> 
   tidy()
 
 model1_aug <- augment(model1_fit, test_data)
-model1_aug %>% 
-  roc_curve(truth = status_5yr, .pred_1) %>% 
+model1_aug |> 
+  roc_curve(truth = status_5yr, .pred_1) |> 
   autoplot() 
 
-model1_aug %>% roc_auc(truth = status_5yr, .pred_1)
+model1_aug |> roc_auc(truth = status_5yr, .pred_1)
 
 #final model on full dataset 
-model1 <- logistic_reg() %>%
-  set_engine("glm") %>%
-  set_mode("classification") %>%
+model1 <- logistic_reg() |>
+  set_engine("glm") |>
+  set_mode("classification") |>
   fit(status_5yr ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = surv_5yr_sex_reg)
 
-model1_results <- tidy(model1) %>%
+model1_results <- tidy(model1) |>
   mutate(conf.low = exp(estimate - 1.96*std.error), 
-         conf.high = exp(estimate + 1.96*std.error)) %>%
-  mutate(estimate = exp(estimate)) %>%
+         conf.high = exp(estimate + 1.96*std.error)) |>
+  mutate(estimate = exp(estimate)) |>
   mutate(estimate = sprintf("%s", estimate),
          conf.low = sprintf("%s", conf.low),
          conf.high = sprintf("%s", conf.high),
-         p.value = sprintf("%s", p.value)) %>%
+         p.value = sprintf("%s", p.value)) |>
   
   #convert to probability 
-  mutate(prob = (as.numeric(estimate) / (1+as.numeric(estimate)))*100) %>%
+  mutate(prob = (as.numeric(estimate) / (1+as.numeric(estimate)))*100) |>
   mutate(prob = sprintf("%s", prob))
 #no association after accounting for age, p=0.8
 
 #language------
-surv_5yr_data_lang <- surv_5yr_data %>% filter(lang_stat != "Missing") 
+surv_5yr_data_lang <- surv_5yr_data |> filter(lang_stat != "Missing") 
 
 #difference by language 
 survdiff(Surv(daystodeath, status_5yr) ~ lang_stat, data = surv_5yr_data_lang) #log rank comparison true difference chisq = 47.7, p = <0.0001, surv prob lower for NES
@@ -345,12 +342,12 @@ ggsurvplot(survfitlang, data = surv_5yr_data_lang, pval = TRUE, conf.int = TRUE,
            ggtheme = theme_minimal()) #this doesn't look great, not sure how to plot better, ylim doesn't work
 
 #regression to account for age -----
-surv_5yr_lang_reg <- surv_5yr_data %>%
-  select(PATIENTID, status_5yr, lang_stat, AGE, IMD19_DECILE_LSOAS,SITE_ICD10_3CHAR, ETHNICITY, STAGE_BEST) %>%
-  ungroup() %>%
+surv_5yr_lang_reg <- surv_5yr_data |>
+  select(PATIENTID, status_5yr, lang_stat, AGE, IMD19_DECILE_LSOAS,SITE_ICD10_3CHAR, ETHNICITY, STAGE_BEST) |>
+  ungroup() |>
   #making dependent variable binary
-  mutate(status_5yr = factor(status_5yr)) %>% 
-  mutate(AGE = as.numeric(AGE)) %>%
+  mutate(status_5yr = factor(status_5yr)) |> 
+  mutate(AGE = as.numeric(AGE)) |>
   
   #excluding observations with missing values for any variables
   filter(lang_stat != "Missing",
@@ -367,56 +364,56 @@ train_data <- training(surv_5yr_lang_reg_split)
 test_data <- testing(surv_5yr_lang_reg_split)
 
 surv_5yr_lang <- 
-  recipe(status_5yr ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = train_data) %>%
+  recipe(status_5yr ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = train_data) |>
   step_dummy(all_nominal_predictors())
 
 #model
-model1 <- logistic_reg() %>%
-  set_engine("glm") %>%
+model1 <- logistic_reg() |>
+  set_engine("glm") |>
   fit(status_5yr ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = train_data)
 
 tidy(model1)
 
-model1_spec <- logistic_reg() %>%
+model1_spec <- logistic_reg() |>
   set_engine("glm") 
 
 model1_wflow <- 
-  workflow() %>% 
-  add_model(model1_spec) %>% 
+  workflow() |> 
+  add_model(model1_spec) |> 
   add_recipe(surv_5yr_lang)
 
 model1_fit <- 
-  model1_wflow %>% 
+  model1_wflow |> 
   fit(data = train_data)
 
-model1_fit %>% 
-  extract_fit_parsnip() %>% 
+model1_fit |> 
+  extract_fit_parsnip() |> 
   tidy()
 
 model1_aug <- augment(model1_fit, test_data)
-model1_aug %>% 
-  roc_curve(truth = status_5yr, .pred_1) %>% 
+model1_aug |> 
+  roc_curve(truth = status_5yr, .pred_1) |> 
   autoplot() 
 
-model1_aug %>% roc_auc(truth = status_5yr, .pred_1)
+model1_aug |> roc_auc(truth = status_5yr, .pred_1)
 
 #final model on full dataset 
-model1 <- logistic_reg() %>%
-  set_engine("glm") %>%
-  set_mode("classification") %>%
+model1 <- logistic_reg() |>
+  set_engine("glm") |>
+  set_mode("classification") |>
   fit(status_5yr ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR + STAGE_BEST, data = surv_5yr_lang_reg)
 
-model1_results <- tidy(model1) %>%
+model1_results <- tidy(model1) |>
   mutate(conf.low = exp(estimate - 1.96*std.error), 
-         conf.high = exp(estimate + 1.96*std.error)) %>%
-  mutate(estimate = exp(estimate)) %>%
+         conf.high = exp(estimate + 1.96*std.error)) |>
+  mutate(estimate = exp(estimate)) |>
   mutate(estimate = sprintf("%s", estimate),
          conf.low = sprintf("%s", conf.low),
          conf.high = sprintf("%s", conf.high),
-         p.value = sprintf("%s", p.value)) %>%
+         p.value = sprintf("%s", p.value)) |>
   
   #convert to probability 
-  mutate(prob = (as.numeric(estimate) / (1+as.numeric(estimate)))*100) %>%
+  mutate(prob = (as.numeric(estimate) / (1+as.numeric(estimate)))*100) |>
   mutate(prob = sprintf("%s", prob))
 
 #no association after accounting for age, p=0.1
