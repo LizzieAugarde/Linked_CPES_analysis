@@ -8,6 +8,7 @@ library(rsample)
 library(tidymodels)
 library(yardstick)
 library(car)
+library(MASS)
 
 load("stage_data.RData")
 load("rtd_data.RData")
@@ -23,7 +24,7 @@ stage_data_sexuality_reg <- stage_data |>
   #excluding observations with missing values for any variables
   filter(sexuality_bin != "Missing",
          !is.na(ETHNICITY), !is.na(IMD19_DECILE_LSOAS), !is.na(AGE), 
-         !is.na(SITE_ICD10_3CHAR)) 
+         !is.na(SITE_ICD10_3CHAR))  
 
 levels(stage_data_sexuality_reg$STAGE_2LEVEL) #checking if late stage is considered as the reference/event, should be "1" "0"
 
@@ -34,13 +35,13 @@ train_data <- training(stage_data_sexuality_reg_split)
 test_data <- testing(stage_data_sexuality_reg_split)
 
 stage_sexuality <- 
-  recipe(STAGE_2LEVEL ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data) |>
+  recipe(STAGE_2LEVEL ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data) |>
   step_dummy(all_nominal_predictors()) 
 
 #model
 model1 <- logistic_reg() |>
   set_engine("glm") |>
-  fit(STAGE_2LEVEL ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data)
+  fit(STAGE_2LEVEL ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data)
 
 tidy(model1)
 
@@ -70,9 +71,8 @@ model1_aug |> roc_auc(truth = STAGE_2LEVEL, .pred_1)
 #final model on full dataset 
 model1 <- logistic_reg() |>
   set_engine("glm") |>
-  fit(STAGE_2LEVEL ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = stage_data_sexuality_reg)
+  fit(STAGE_2LEVEL ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = stage_data_sexuality_reg)
 
-#######no association between sexuality and stage after controlling for confounders, OR = 1, p = 0.9
 model1_results <- tidy(model1) |>
   mutate(conf.low = exp(estimate - 1.96*std.error), 
          conf.high = exp(estimate + 1.96*std.error)) |>
@@ -83,7 +83,7 @@ model1_results <- tidy(model1) |>
          conf.high = sprintf("%s", conf.high))
 
 #checking multicollinearity in categorical variables
-model1_mc <- glm(STAGE_2LEVEL ~ sexuality_bin + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = stage_data_sexuality_reg, family = binomial)
+model1_mc <- glm(STAGE_2LEVEL ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = stage_data_sexuality_reg, family = binomial)
 class(model1_mc)
 vif(model1_mc) ##no significant multicollinearity
 
@@ -110,13 +110,13 @@ train_data <- training(stage_data_language_reg_split)
 test_data <- testing(stage_data_language_reg_split)
 
 stage_language <- 
-  recipe(STAGE_2LEVEL ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data) |>
+  recipe(STAGE_2LEVEL ~ lang_stat + age_10yr_band + IMD19_DECILE_LSOAS, data = train_data) |>
   step_dummy(all_nominal_predictors())
 
 #model
 model2 <- logistic_reg() |>
   set_engine("glm") |>
-  fit(STAGE_2LEVEL ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data)
+  fit(STAGE_2LEVEL ~ lang_stat + age_10yr_band + IMD19_DECILE_LSOAS, data = train_data)
 
 tidy(model2)
 
@@ -147,7 +147,7 @@ model2_aug |> roc_auc(truth = STAGE_2LEVEL, .pred_1)
 model2 <- logistic_reg() |>
   set_engine("glm") |>
   set_mode("classification") |>
-  fit(STAGE_2LEVEL ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = stage_data_language_reg)
+  fit(STAGE_2LEVEL ~ lang_stat + age_10yr_band + IMD19_DECILE_LSOAS, data = stage_data_language_reg)
 
 model2_results <- tidy(model2) |>
   mutate(conf.low = exp(estimate - 1.96*std.error), 
@@ -166,6 +166,22 @@ model2_results <- tidy(model2) |>
 model2_mc <- glm(STAGE_2LEVEL ~ lang_stat + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = stage_data_language_reg, family = binomial)
 class(model2_mc)
 vif(model2_mc)
+
+#checking association between IMD and age
+table_imd_age <- table(stage_data_language_reg$age_10yr_band, stage_data_language_reg$IMD19_DECILE_LSOAS)
+chisq.test(table_imd_age) #p<0.05, strong evidence for association between IMD and age 
+model_full <- glm(STAGE_2LEVEL ~ lang_stat + age_10yr_band + IMD19_DECILE_LSOAS, data = stage_data_language_reg, family = binomial)
+model_red <- glm(STAGE_2LEVEL ~ lang_stat + age_10yr_band, data = stage_data_language_reg, family = binomial)
+lr_test <- anova(model_red, model_full, test = "LRT")
+print(lr_test) #adding IMD significantly improves model 
+vif_model <- glm(STAGE_2LEVEL ~ lang_stat + age_10yr_band + IMD19_DECILE_LSOAS, data = stage_data_language_reg, family = binomial)
+vif(vif_model) #no evidence of multicollinearity 
+
+model_interaction <- glm(STAGE_2LEVEL ~ lang_stat * age_10yr_band + lang_stat * IMD19_DECILE_LSOAS,
+                         data = stage_data_language_reg,
+                         family = binomial)
+summary(model_interaction)
+
 
 
 ######### SEXUALITY AND EMERGENCY ROUTE TO DIAGNOSIS #########
