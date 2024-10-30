@@ -12,7 +12,10 @@ casref01 <- NDRSAfunctions::createConnection()
 
 #data extract - 2022
 resp2022_query <- "SELECT *
-                  FROM CPES.NC_2022_RESPONDENTS@casref01 cpes, CPES.NC_2022_LINKAGE_RES_CAS2407@casref01 ln, AV2021.AT_TUMOUR_ENGLAND@casref01 at
+                  FROM CPES.NC_2022_RESPONDENTS@casref01 cpes,
+                  CPES.NC_2022_LINKAGE_RES_CAS2407@casref01 ln, 
+                  AV2021.AT_TUMOUR_ENGLAND@casref01 at
+                  left join analysispollyjeffrey.at_site_england@casref01 s on at.tumourid = s.tumourid
                   WHERE cpes.cpes_prn = ln.cpes_prn
                   AND ln.avtum_patientid = at.patientid
                   AND ln.avtum_tumourid = at.tumourid
@@ -23,7 +26,10 @@ resp2022 <- resp2022[, !duplicated(colnames(resp2022))]
 
 #data extract - 2021
 resp2021_query <- "SELECT *
-                  FROM CPES.NC_2021_RESPONDENTS@casref01 cpes, CPES.NC_21_LINK_RES_CAS2306@casref01 ln, AV2021.AT_TUMOUR_ENGLAND@casref01 at
+                  FROM CPES.NC_2021_RESPONDENTS@casref01 cpes, 
+                  CPES.NC_21_LINK_RES_CAS2306@casref01 ln, 
+                  AV2021.AT_TUMOUR_ENGLAND@casref01 at
+                  left join analysispollyjeffrey.at_site_england@casref01 s on at.tumourid = s.tumourid
                   WHERE cpes.cpes_prn = ln.cpes_prn
                   AND ln.patientid = at.patientid
                   AND ln.tumourid = at.tumourid
@@ -38,6 +44,7 @@ resp2019_query <- "select *
                   join cpes.nc_2019_linkage_cas2009@casref01 ln on cpes.cpes_prn = ln.prn
                   join av2021.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
                   left join av2020.rtd2020@casref01 rtd on ln.tumourid = rtd.tumourid
+                  left join analysispollyjeffrey.at_site_england@casref01 s on at.tumourid = s.tumourid
                   where ln.final_unique =  1"
 
 resp2019 <- dbGetQueryOracle(casref01, resp2019_query, rowlimit = NA)
@@ -49,6 +56,7 @@ resp2018_query <- "select *
                   join cpes.nc_2018_linkage_cas1907@casref01 ln on cpes.cpes_psid = ln.psid 
                   join av2021.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
                   left join av2018.rtd2018@casref01 rtd on ln.tumourid = rtd.tumourid
+                  left join analysispollyjeffrey.at_site_england@casref01 s on at.tumourid = s.tumourid
                   where ln.final_unique = 1"
 
 resp2018 <- dbGetQueryOracle(casref01, resp2018_query, rowlimit = NA)
@@ -60,6 +68,7 @@ resp2017_query <- "select *
                   join cpes.nc_2017_linkage_cas1907@casref01 ln on cpes.cpes_psid = ln.psid 
                   join av2021.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
                   left join av2017.rtd2017@casref01 rtd on ln.tumourid = rtd.tumourid
+                  left join analysispollyjeffrey.at_site_england@casref01 s on at.tumourid = s.tumourid
                   where ln.final_unique = 1"
 
 resp2017 <- dbGetQueryOracle(casref01, resp2017_query, rowlimit = NA)
@@ -231,6 +240,23 @@ resp_data <- resp_data |> ####different question in different years
 #note re checking other confoudners
 resp_data <- resp_data |>
   mutate(ETHNICITY = ifelse(ETHNICITY == "0", NA, ETHNICITY))
+
+
+########### Creating age variables ########### 
+#derive age at diagnosis from birth and diagnosis dates due to weird age responses in CPES 
+resp_data <- resp_data |>
+  mutate(age_at_diag = round((as.numeric(difftime(DIAGNOSISDATEBEST, BIRTHDATEBEST, units = "days")))/365.25)) |>
+  mutate(age_10yr_band = case_when(age_at_diag < 10 ~ "0-9", 
+                                   age_at_diag > 9 & age_at_diag <20 ~ "10-19",
+                                   age_at_diag > 19 & age_at_diag <30 ~ "20-29",
+                                   age_at_diag > 29 & age_at_diag <40 ~ "30-39",
+                                   age_at_diag > 39 & age_at_diag <50 ~ "40-49",
+                                   age_at_diag > 49 & age_at_diag <60 ~ "50-59",
+                                   age_at_diag > 59 & age_at_diag <70 ~ "60-69",
+                                   age_at_diag > 69 & age_at_diag <80 ~ "70-79",
+                                   age_at_diag > 79 & age_at_diag <90 ~ "80-89",
+                                   age_at_diag > 89 ~ "90+")) |>
+  mutate(age_binary = ifelse(age_at_diag < 68, "Young", "Old")) #based on median age at diagnosis which for this cohort is 67
 
 
 ########### Saving env ########### 
