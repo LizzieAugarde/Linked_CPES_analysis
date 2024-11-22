@@ -9,6 +9,7 @@ library(tidymodels)
 library(yardstick)
 library(car)
 library(MASS)
+library(rms)
 
 load("stage_data.RData")
 load("rtd_data.RData")
@@ -35,13 +36,13 @@ train_data <- training(stage_data_sexuality_reg_split)
 test_data <- testing(stage_data_sexuality_reg_split)
 
 stage_sexuality <- 
-  recipe(STAGE_2LEVEL ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data) |>
+  recipe(STAGE_2LEVEL ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = train_data) |>
   step_dummy(all_nominal_predictors()) 
 
 #model
 model1 <- logistic_reg() |>
   set_engine("glm") |>
-  fit(STAGE_2LEVEL ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data)
+  fit(STAGE_2LEVEL ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = train_data)
 
 tidy(model1)
 
@@ -71,7 +72,7 @@ model1_aug |> roc_auc(truth = STAGE_2LEVEL, .pred_1)
 #final model on full dataset 
 model1 <- logistic_reg() |>
   set_engine("glm") |>
-  fit(STAGE_2LEVEL ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = stage_data_sexuality_reg)
+  fit(STAGE_2LEVEL ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = stage_data_sexuality_reg)
 
 model1_results <- tidy(model1) |>
   mutate(conf.low = exp(estimate - 1.96*std.error), 
@@ -83,7 +84,7 @@ model1_results <- tidy(model1) |>
          conf.high = sprintf("%s", conf.high))
 
 #checking multicollinearity in categorical variables
-model1_mc <- glm(STAGE_2LEVEL ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = stage_data_sexuality_reg, family = binomial)
+model1_mc <- glm(STAGE_2LEVEL ~ sexuality_bin + age_binary + IMD19_DECILE_LSOAS, data = stage_data_sexuality_reg, family = binomial)
 class(model1_mc)
 vif(model1_mc) ##no significant multicollinearity
 
@@ -110,13 +111,13 @@ train_data <- training(stage_data_language_reg_split)
 test_data <- testing(stage_data_language_reg_split)
 
 stage_language <- 
-  recipe(STAGE_2LEVEL ~ lang_stat + age_10yr_band + IMD19_DECILE_LSOAS, data = train_data) |>
+  recipe(STAGE_2LEVEL ~ lang_stat + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = train_data) |>
   step_dummy(all_nominal_predictors())
 
 #model
 model2 <- logistic_reg() |>
   set_engine("glm") |>
-  fit(STAGE_2LEVEL ~ lang_stat + age_10yr_band + IMD19_DECILE_LSOAS, data = train_data)
+  fit(STAGE_2LEVEL ~ lang_stat + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = train_data)
 
 tidy(model2)
 
@@ -147,7 +148,7 @@ model2_aug |> roc_auc(truth = STAGE_2LEVEL, .pred_1)
 model2 <- logistic_reg() |>
   set_engine("glm") |>
   set_mode("classification") |>
-  fit(STAGE_2LEVEL ~ lang_stat + age_10yr_band + IMD19_DECILE_LSOAS, data = stage_data_language_reg)
+  fit(STAGE_2LEVEL ~ lang_stat + age_binary + ETHNICITY + IMD19_DECILE_LSOAS, data = stage_data_language_reg)
 
 model2_results <- tidy(model2) |>
   mutate(conf.low = exp(estimate - 1.96*std.error), 
@@ -163,7 +164,7 @@ model2_results <- tidy(model2) |>
   mutate(prob = sprintf("%s", prob))
 
 #checking multicollinearity in categorical variables
-model2_mc <- glm(STAGE_2LEVEL ~ lang_stat + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = stage_data_language_reg, family = binomial)
+model2_mc <- glm(STAGE_2LEVEL ~ lang_stat + age_binary + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = stage_data_language_reg, family = binomial)
 class(model2_mc)
 vif(model2_mc)
 
@@ -181,6 +182,19 @@ model_interaction <- glm(STAGE_2LEVEL ~ lang_stat * age_10yr_band + lang_stat * 
                          data = stage_data_language_reg,
                          family = binomial)
 summary(model_interaction)
+
+#checking full model 
+stage_lang_reg_clean <- stage_data_language_reg[complete.cases(stage_data_language_reg[, c("lang_stat", "age_10yr_band", "ETHNICITY", "IMD19_DECILE_LSOAS", "NDRS_MAIN")]), ]
+model_full <- glm(STAGE_2LEVEL ~ lang_stat + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = stage_lang_reg_clean, family = binomial)
+model_red <- glm(STAGE_2LEVEL ~ lang_stat + age_10yr_band, data = stage_lang_reg_clean, family = binomial)
+lr_test <- anova(model_red, model_full, test = "LRT")
+print(lr_test) #did this stepwise, adding each variable significantly improves the model
+
+model_interaction <- glm(STAGE_2LEVEL ~ lang_stat * age_10yr_band + lang_stat * IMD19_DECILE_LSOAS
+                         + lang_stat * ETHNICITY + lang_stat * NDRS_MAIN,
+                         data = stage_data_language_reg,
+                         family = binomial)
+summary(model_interaction) #high level of interaction, little evidence for language status influencing independently 
 
 
 
@@ -207,13 +221,13 @@ train_data <- training(rtd_ep_sexuality_reg_split)
 test_data <- testing(rtd_ep_sexuality_reg_split)
 
 rtd_ep_sexuality <- 
-  recipe(FINAL_ROUTE ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data) |>
+  recipe(FINAL_ROUTE ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = train_data) |>
   step_dummy(all_nominal_predictors())
 
 #model
 model3 <- logistic_reg() |>
   set_engine("glm") |>
-  fit(FINAL_ROUTE ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data)
+  fit(FINAL_ROUTE ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = train_data)
 
 tidy(model3)
 
@@ -244,7 +258,7 @@ model3_aug |> roc_auc(truth = FINAL_ROUTE, .pred_1)
 model3 <- logistic_reg() |>
   set_engine("glm") |>
   set_mode("classification") |>
-  fit(FINAL_ROUTE ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = rtd_ep_sexuality_reg)
+  fit(FINAL_ROUTE ~ sexuality_bin + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = rtd_ep_sexuality_reg)
 
 model3_results <- tidy(model3) |>
   mutate(conf.low = exp(estimate - 1.96*std.error), 
@@ -258,6 +272,11 @@ model3_results <- tidy(model3) |>
   #convert to probability 
   mutate(prob = (as.numeric(estimate) / (1+as.numeric(estimate)))*100) |>
   mutate(prob = sprintf("%s", prob))
+
+#checking multicollinearity in categorical variables
+model3_mc <- glm(FINAL_ROUTE ~ lang_stat + age_10yr_band + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = rtd_ep_sexuality_reg, family = binomial)
+class(model2_mc)
+rms::vif(model2_mc)
 
 
 ######### SEXUALITY AND SCREENING ROUTE TO DIAGNOSIS #########
@@ -283,13 +302,13 @@ train_data <- training(rtd_sc_sexuality_reg_split)
 test_data <- testing(rtd_sc_sexuality_reg_split)
 
 rtd_sc_sexuality <- 
-  recipe(FINAL_ROUTE ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data) |>
+  recipe(FINAL_ROUTE ~ sexuality_bin + age_binary + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = train_data) |>
   step_dummy(all_nominal_predictors())
 
 #model
 model4 <- logistic_reg() |>
   set_engine("glm") |>
-  fit(FINAL_ROUTE ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data)
+  fit(FINAL_ROUTE ~ sexuality_bin + age_binary + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = train_data)
 
 tidy(model4)
 
@@ -320,9 +339,9 @@ model4_aug |> roc_auc(truth = FINAL_ROUTE, .pred_1)
 model4 <- logistic_reg() |>
   set_engine("glm") |>
   set_mode("classification") |>
-  fit(FINAL_ROUTE ~ sexuality_bin + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = rtd_sc_sexuality_reg)
+  fit(FINAL_ROUTE ~ sexuality_bin + age_binary + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = rtd_sc_sexuality_reg)
 
-model4_results <- tidy(model3) |>
+model4_results <- tidy(model4) |>
   mutate(conf.low = exp(estimate - 1.96*std.error), 
          conf.high = exp(estimate + 1.96*std.error)) |>
   mutate(estimate = exp(estimate)) |>
@@ -334,6 +353,24 @@ model4_results <- tidy(model3) |>
   #convert to probability 
   mutate(prob = (as.numeric(estimate) / (1+as.numeric(estimate)))*100) |>
   mutate(prob = sprintf("%s", prob))
+
+#checking all confounders model
+table_age_imd <- table(rtd_sc_sexuality_reg$age_10yr_band, rtd_sc_sexuality_reg$IMD19_DECILE_LSOAS)
+chisq.test(table_age_imd) #p<0.05, strong evidence for association between age and ethnicity
+
+rtd_sc_sex_reg_clean <- rtd_sc_sexuality_reg[complete.cases(rtd_sc_sexuality_reg[, c("lang_stat", "age_binary", "age_10yr_band", "ETHNICITY", "IMD19_DECILE_LSOAS", "NDRS_MAIN")]), ]
+model_full <- glm(FINAL_ROUTE ~ sexuality_bin + age_binary + ETHNICITY, data = rtd_sc_sex_reg_clean, family = binomial)
+model_red <- glm(FINAL_ROUTE ~ sexuality_bin + age_binary, data = rtd_sc_sex_reg_clean, family = binomial)
+lr_test <- anova(model_red, model_full, test = "LRT")
+print(lr_test) #adding each variable significantly improves model 
+vif_model <- glm(FINAL_ROUTE ~ sexuality_bin + age_binary + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = rtd_sc_sexuality_reg, family = binomial)
+vif(vif_model) #no evidence of multicollinearity 
+
+model_interaction <- glm(FINAL_ROUTE ~ sexuality_bin * age_binary + sexuality_bin * ETHNICITY
+                         + sexuality_bin * IMD19_DECILE_LSOAS + sexuality_bin * NDRS_MAIN,
+                         data = rtd_sc_sexuality_reg,
+                         family = binomial)
+summary(model_interaction)
 
 
 ######### LANGUAGE STATUS AND EMERGENCY ROUTE TO DIAGNOSIS #########
@@ -359,13 +396,13 @@ train_data <- training(rtd_ep_language_reg_split)
 test_data <- testing(rtd_ep_language_reg_split)
 
 rtd_ep_language <- 
-  recipe(FINAL_ROUTE ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data) |>
+  recipe(FINAL_ROUTE ~ lang_stat + ETHNICITY, data = train_data) |>
   step_dummy(all_nominal_predictors())
 
 #model
 model5 <- logistic_reg() |>
   set_engine("glm") |>
-  fit(FINAL_ROUTE ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data)
+  fit(FINAL_ROUTE ~ lang_stat + ETHNICITY, data = train_data)
 
 tidy(model5)
 
@@ -396,7 +433,7 @@ model5_aug |> roc_auc(truth = FINAL_ROUTE, .pred_1)
 model5 <- logistic_reg() |>
   set_engine("glm") |>
   set_mode("classification") |>
-  fit(FINAL_ROUTE ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = rtd_ep_language_reg)
+  fit(FINAL_ROUTE ~ lang_stat + age_binary + ETHNICITY + IMD19_DECILE_LSOAS + NDRS_MAIN, data = rtd_ep_language_reg)
 
 model5_results <- tidy(model5) |>
   mutate(conf.low = exp(estimate - 1.96*std.error), 
@@ -435,13 +472,13 @@ train_data <- training(rtd_sc_language_reg_split)
 test_data <- testing(rtd_sc_language_reg_split)
 
 rtd_sc_language <- 
-  recipe(FINAL_ROUTE ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data) |>
+  recipe(FINAL_ROUTE ~ lang_stat + ETHNICITY, data = train_data) |>
   step_dummy(all_nominal_predictors())
 
 #model
 model6 <- logistic_reg() |>
   set_engine("glm") |>
-  fit(FINAL_ROUTE ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = train_data)
+  fit(FINAL_ROUTE ~ lang_stat + ETHNICITY, data = train_data)
 
 tidy(model6)
 
@@ -472,7 +509,7 @@ model6_aug |> roc_auc(truth = FINAL_ROUTE, .pred_1)
 model6 <- logistic_reg() |>
   set_engine("glm") |>
   set_mode("classification") |>
-  fit(FINAL_ROUTE ~ lang_stat + AGE + ETHNICITY + IMD19_DECILE_LSOAS + SITE_ICD10_3CHAR, data = rtd_sc_language_reg)
+  fit(FINAL_ROUTE ~ lang_stat + ETHNICITY + IMD19_DECILE_LSOAS, data = rtd_sc_language_reg)
 
 model6_results <- tidy(model6) |>
   mutate(conf.low = exp(estimate - 1.96*std.error), 
@@ -486,3 +523,19 @@ model6_results <- tidy(model6) |>
   #convert to probability 
   mutate(prob = (as.numeric(estimate) / (1+as.numeric(estimate)))*100) |>
   mutate(prob = sprintf("%s", prob))
+
+#checking all confounders model
+table_eth_imd <- table(rtd_sc_language_reg$ETHNICITY, rtd_sc_language_reg$IMD19_DECILE_LSOAS)
+chisq.test(table_eth_imd) #p<0.05, strong evidence for association between IMD and ethnicity
+
+model_full <- glm(FINAL_ROUTE ~ sexuality_bin + IMD19_DECILE_LSOAS + ETHNICITY, data = rtd_sc_language_reg, family = binomial)
+model_red <- glm(FINAL_ROUTE ~ sexuality_bin + IMD19_DECILE_LSOAS, data = rtd_sc_language_reg, family = binomial)
+lr_test <- anova(model_red, model_full, test = "LRT")
+print(lr_test) #adding each variable significantly improves model 
+vif_model <- glm(FINAL_ROUTE ~ sexuality_bin + IMD19_DECILE_LSOAS + ETHNICITY, data = rtd_sc_language_reg, family = binomial)
+vif(vif_model) #no evidence of multicollinearity 
+
+model_interaction <- glm(FINAL_ROUTE ~ sexuality_bin * IMD19_DECILE_LSOAS + sexuality_bin * ETHNICITY,
+                         data = rtd_sc_language_reg,
+                         family = binomial)
+summary(model_interaction)

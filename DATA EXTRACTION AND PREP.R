@@ -189,7 +189,7 @@ inconsistent_lsoa <- imd_data_check |>
   filter(unique_lsoas > 1) #no inconsistent LSOAs by tumourid
 
 imd_data <- imd_data |>
-  select(-c(PATIENTID, datayear)) |>
+  dplyr::select(-c(PATIENTID, datayear)) |>
   distinct()
 
 #link to resp_data table 
