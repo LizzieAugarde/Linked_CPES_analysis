@@ -1,6 +1,7 @@
 ################ Linked CPES analysis - univariate ###################
 
-#Univariate analysis of confounding variables, comparing to 2022 total cancer pop
+#Univariate analysis of confounding variables, by sexuality/language and
+#overall, comparing to 2022 total cancer pop
 
 #Created August 2024 by Lizzie Augarde 
 ############################################################################# 
@@ -10,6 +11,8 @@ library(NDRSAfunctions)
 
 casref01 <- NDRSAfunctions::createConnection()
 
+
+################ COMPARING NCPES RESPONDENTS TO 2022 CANCER POP ############
 all_pts_query <- "SELECT 
                        p.patientid,
                        p.birthdatebest,
@@ -80,3 +83,29 @@ table(all_pts$IMD19_DECILE_LSOAS)
 ######## Cancer site
 resps_site <- as.data.frame(table(resp_data$NDRS_MAIN))
 all_pts_site <- as.data.frame(table(all_pts$NDRS_MAIN))
+
+
+################ COMPARING COMPOSITION BY SEXUALITY ############
+resp_data |> group_by(sexuality_bin) |> summarise(median_age = median(age_at_diag))
+resp_data |> group_by(sexuality_bin) |> summarise(min_age = min(age_at_diag))
+resp_data |> group_by(sexuality_bin) |> summarise(max_age = max(age_at_diag))
+resp_data |> group_by(sexuality_bin) |> summarise(iqr_age = IQR(age_at_diag))
+resp_data |> group_by(sexuality_bin) |> summarise(sd_age = sd(age_at_diag))
+
+table(resp_data$sexuality_bin, resp_data$GENDER)
+table(resp_data$sexuality_bin, resp_data$ETHNICITY)
+table(resp_data$sexuality_bin, resp_data$IMD19_DECILE_LSOAS)
+site_sex <- as.data.frame(table(resp_data$sexuality_bin, resp_data$NDRS_MAIN))
+
+
+################ COMPARING COMPOSITION BY LANGUAGE STATUS ############
+resp_data |> group_by(lang_stat) |> summarise(median_age = median(age_at_diag))
+resp_data |> group_by(lang_stat) |> summarise(min_age = min(age_at_diag))
+resp_data |> group_by(lang_stat) |> summarise(max_age = max(age_at_diag))
+resp_data |> group_by(lang_stat) |> summarise(iqr_age = IQR(age_at_diag))
+resp_data |> group_by(lang_stat) |> summarise(sd_age = sd(age_at_diag))
+
+table(resp_data$lang_stat, resp_data$GENDER)
+table(resp_data$lang_stat, resp_data$ETHNICITY)
+table(resp_data$lang_stat, resp_data$IMD19_DECILE_LSOAS)
+site_lang <- as.data.frame(table(resp_data$lang_stat, resp_data$NDRS_MAIN))
