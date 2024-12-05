@@ -12,7 +12,7 @@ library(NDRSAfunctions)
 casref01 <- NDRSAfunctions::createConnection()
 
 
-################ COMPARING NCPES RESPONDENTS TO 2022 CANCER POP ############
+################ COMPARING NCPES RESPONDENTS TO GENERAL CANCER POP ############
 all_pts_query <- "SELECT 
                        p.patientid,
                        p.birthdatebest,
@@ -109,3 +109,73 @@ table(resp_data$lang_stat, resp_data$GENDER)
 table(resp_data$lang_stat, resp_data$ETHNICITY)
 table(resp_data$lang_stat, resp_data$IMD19_DECILE_LSOAS)
 site_lang <- as.data.frame(table(resp_data$lang_stat, resp_data$NDRS_MAIN))
+
+
+################ POPULATION PYRAMIDS ############
+resp_data |> 
+  filter(sexuality_bin == "Sexual minority", GENDER != 0) |>
+  group_by(GENDER, age_10yr_band) |>
+  summarise(population = n()) |>
+  mutate(population = ifelse(GENDER == 1, 
+                             population*(-1), 
+                             population*1))|>
+  mutate(GENDER = ifelse(GENDER == 1, "Male", "Female")) |>
+  ggplot(aes(x = age_10yr_band, y = population, fill = GENDER)) +  
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  labs(y = "", x = "Age group", fill = "Gender", title = "Sexual minority respondents") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 12, face = "bold"))
+
+resp_data |> 
+  filter(lang_stat == "Non-native English speaker", GENDER != 0) |>
+  group_by(GENDER, age_10yr_band) |>
+  summarise(population = n()) |>
+  mutate(population = ifelse(GENDER == 1, 
+                             population*(-1), 
+                             population*1))|>
+  mutate(GENDER = ifelse(GENDER == 1, "Male", "Female")) |>
+  ggplot(aes(x = age_10yr_band, y = population, fill = GENDER)) +  
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  labs(y = "", x = "Age group", fill = "Gender", title = "Non-native English-speaking respondents") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 12, face = "bold"))
+
+
+################ DEPRIVATION GRAPHS ############
+resp_data |> 
+  filter(sexuality_bin != "Missing", !is.na(IMD19_DECILE_LSOAS)) |>
+  mutate(IMD19_DECILE_LSOAS = factor(IMD19_DECILE_LSOAS, 
+                                     levels = c("1 - most deprived", "2", "3",
+                                                "4", "5", "6", "7", "8", "9",
+                                                "10 - least deprived"))) |>
+  group_by(sexuality_bin, IMD19_DECILE_LSOAS) |>
+  summarise(count = n()) |>
+  mutate(prop = (count/sum(count))*100) |>
+  ggplot(aes(x = IMD19_DECILE_LSOAS, y = prop, fill = sexuality_bin)) +  
+  geom_bar(stat = "identity", position = "dodge", width = 0.7) + 
+  labs(x = "Deprivation decile", y = "Proportion of respondents", 
+       fill = "Sexuality") +
+  coord_flip() +
+  theme(plot.title = element_text(size = 12, face = "bold")) +
+  scale_y_continuous(limits = c(0,15))
+
+resp_data |> 
+  filter(lang_stat != "Missing", !is.na(IMD19_DECILE_LSOAS)) |>
+  mutate(IMD19_DECILE_LSOAS = factor(IMD19_DECILE_LSOAS, 
+                                     levels = c("1 - most deprived", "2", "3",
+                                                "4", "5", "6", "7", "8", "9",
+                                                "10 - least deprived"))) |>
+  group_by(lang_stat, IMD19_DECILE_LSOAS) |>
+  summarise(count = n()) |>
+  mutate(prop = (count/sum(count))*100) |>
+  ggplot(aes(x = IMD19_DECILE_LSOAS, y = prop, fill = lang_stat)) +  
+  geom_bar(stat = "identity", position = "dodge", width = 0.7) + 
+  labs(x = "Deprivation decile", y = "Proportion of respondents", 
+       fill = "Language status") +
+  coord_flip() +
+  theme(plot.title = element_text(size = 12, face = "bold")) +
+  scale_y_continuous(limits = c(0,15))

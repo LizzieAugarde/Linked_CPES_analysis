@@ -113,15 +113,15 @@ ggsurvplot(survfitlang, data = surv_1yr_data_lang, pval = TRUE, conf.int = TRUE,
 
 #regression to account for age -----
 surv_1yr_lang_reg <- surv_1yr_data |>
-  select(PATIENTID, status_1yr, lang_stat, AGE, IMD19_DECILE_LSOAS,SITE_ICD10_3CHAR, ETHNICITY, STAGE_BEST) |>
+  select(PATIENTID, status_1yr, lang_stat, age_at_diag, IMD19_DECILE_LSOAS,SITE_ICD10_3CHAR, ETHNICITY, STAGE_BEST) |>
   ungroup() |>
   #making dependent variable binary
   mutate(status_1yr = factor(status_1yr)) |> 
-  mutate(AGE = as.numeric(AGE)) |>
+  mutate(age_at_diag = as.numeric(age_at_diag)) |>
   
   #excluding observations with missing values for any variables
   filter(lang_stat != "Missing",
-         !is.na(ETHNICITY), !is.na(IMD19_DECILE_LSOAS), !is.na(AGE), 
+         !is.na(ETHNICITY), !is.na(IMD19_DECILE_LSOAS), !is.na(age_at_diag), 
          !is.na(SITE_ICD10_3CHAR), !is.na(STAGE_BEST) ) 
 
 levels(surv_1yr_lang_reg$status_1yr) #checking if death is considered as the event, should be "1" "0"
@@ -247,7 +247,7 @@ ggsurvplot(surv_fits, combine = TRUE,
 surv_5yr_data_sex <- surv_5yr_data |> filter(sexuality_bin != "Missing") 
 
 #difference by sexuality
-survdiff(Surv(daystodeath, status_5yr) ~ sexuality_bin, data = surv_5yr_data_sex) #true difference chisq = 4.5, p = 0.03
+survdiff(Surv(daystodeath, status_5yr) ~ sexuality_bin, data = surv_5yr_data_sex) #true difference chisq = 3.1, p = 0.08
 survfitsex <- survfit(Surv(daystodeath, status_5yr) ~ sexuality_bin, data = surv_5yr_data_sex)
 plot <- ggsurvplot(survfitsex, data = surv_5yr_data_sex, pval = TRUE, conf.int = TRUE, risk.table = TRUE,
            legend.title = "Sexuality", legend.labs = c("Heterosexual", "Sexual minority"),
