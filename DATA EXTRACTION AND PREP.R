@@ -14,7 +14,7 @@ casref01 <- NDRSAfunctions::createConnection()
 resp2022_query <- "SELECT *
                   FROM CPES.NC_2022_RESPONDENTS@casref01 cpes,
                   CPES.NC_2022_LINKAGE_RES_CAS2407@casref01 ln, 
-                  AV2021.AT_TUMOUR_ENGLAND@casref01 at
+                  AV2022.AT_TUMOUR_ENGLAND@casref01 at
                   left join analysispollyjeffrey.at_site_england@casref01 s on at.tumourid = s.tumourid
                   WHERE cpes.cpes_prn = ln.cpes_prn
                   AND ln.avtum_patientid = at.patientid
@@ -28,7 +28,7 @@ resp2022 <- resp2022[, !duplicated(colnames(resp2022))]
 resp2021_query <- "SELECT *
                   FROM CPES.NC_2021_RESPONDENTS@casref01 cpes, 
                   CPES.NC_21_LINK_RES_CAS2306@casref01 ln, 
-                  AV2021.AT_TUMOUR_ENGLAND@casref01 at
+                  AV2022.AT_TUMOUR_ENGLAND@casref01 at
                   left join analysispollyjeffrey.at_site_england@casref01 s on at.tumourid = s.tumourid
                   WHERE cpes.cpes_prn = ln.cpes_prn
                   AND ln.patientid = at.patientid
@@ -42,7 +42,7 @@ resp2021 <- resp2021[, !duplicated(colnames(resp2021))]
 resp2019_query <- "select *
                   from cpes.nc_2019_respondents@casref01 cpes
                   join cpes.nc_2019_linkage_cas2009@casref01 ln on cpes.cpes_prn = ln.prn
-                  join av2021.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
+                  join av2022.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
                   left join av2020.rtd2020@casref01 rtd on ln.tumourid = rtd.tumourid
                   left join analysispollyjeffrey.at_site_england@casref01 s on at.tumourid = s.tumourid
                   where ln.final_unique =  1"
@@ -54,8 +54,8 @@ resp2019 <- resp2019[, !duplicated(colnames(resp2019))]
 resp2018_query <- "select *
                   from cpes.nc_2018_respondents@casref01 cpes
                   join cpes.nc_2018_linkage_cas1907@casref01 ln on cpes.cpes_psid = ln.psid 
-                  join av2021.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
-                  left join av2018.rtd2018@casref01 rtd on ln.tumourid = rtd.tumourid
+                  join av2022.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
+                  left join av2020.rtd2020@casref01 rtd on ln.tumourid = rtd.tumourid
                   left join analysispollyjeffrey.at_site_england@casref01 s on at.tumourid = s.tumourid
                   where ln.final_unique = 1"
 
@@ -66,8 +66,8 @@ resp2018 <- resp2018[, !duplicated(colnames(resp2018))]
 resp2017_query <- "select *
                   from cpes.nc_2017_respondents@casref01 cpes
                   join cpes.nc_2017_linkage_cas1907@casref01 ln on cpes.cpes_psid = ln.psid 
-                  join av2021.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
-                  left join av2017.rtd2017@casref01 rtd on ln.tumourid = rtd.tumourid
+                  join av2022.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
+                  left join av2020.rtd2020@casref01 rtd on ln.tumourid = rtd.tumourid
                   left join analysispollyjeffrey.at_site_england@casref01 s on at.tumourid = s.tumourid
                   where ln.final_unique = 1"
 
@@ -100,8 +100,8 @@ imd2022_query <- "select
                       d.imd19_quintile_lsoas
                   from cpes.nc_2022_respondents@casref01 cpes
                   join cpes.nc_2022_linkage_res_cas2407@casref01 ln on cpes.cpes_prn = ln.cpes_prn
-                  join av2021.at_tumour_england@casref01 at on ln.avtum_patientid = at.patientid and ln.avtum_tumourid = at.tumourid
-                  left join av2021.at_geography_england@casref01 g on at.tumourid = g.tumourid
+                  join av2022.at_tumour_england@casref01 at on ln.avtum_patientid = at.patientid and ln.avtum_tumourid = at.tumourid
+                  left join av2022.at_geography_england@casref01 g on at.tumourid = g.tumourid
                   left join imd.imd2019_equal_lsoas@casref01 d on g.lsoa11_code = d.lsoa11_code
                   where ln.final_unique = 1"
 
@@ -116,8 +116,8 @@ imd2021_query <- "select
                       d.imd19_quintile_lsoas
                   from cpes.nc_2021_respondents@casref01 cpes
                   join cpes.nc_21_link_res_cas2306@casref01 ln on cpes.cpes_prn = ln.cpes_prn
-                  join av2021.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
-                  left join av2021.at_geography_england@casref01 g on at.tumourid = g.tumourid
+                  join av2022.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
+                  left join av2022.at_geography_england@casref01 g on at.tumourid = g.tumourid
                   left join imd.imd2019_equal_lsoas@casref01 d on g.lsoa11_code = d.lsoa11_code
                   where ln.final_unique = 1"
 
@@ -132,8 +132,8 @@ imd2019_query <- "select
                       d.imd19_quintile_lsoas
                   from cpes.nc_2019_respondents@casref01 cpes
                   join cpes.nc_2019_linkage_cas2009@casref01 ln on cpes.cpes_prn = ln.prn
-                  join av2021.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
-                  left join av2021.at_geography_england@casref01 g on at.tumourid = g.tumourid
+                  join av2022.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
+                  left join av2022.at_geography_england@casref01 g on at.tumourid = g.tumourid
                   left join imd.imd2019_equal_lsoas@casref01 d on g.lsoa11_code = d.lsoa11_code
                   where ln.final_unique = 1"
 
@@ -148,8 +148,8 @@ imd2018_query <- "select
                       d.imd19_quintile_lsoas
                   from cpes.nc_2018_respondents@casref01 cpes
                   join cpes.nc_2018_linkage_cas1907@casref01 ln on cpes.cpes_psid = ln.psid
-                  join av2021.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
-                  left join av2021.at_geography_england@casref01 g on at.tumourid = g.tumourid
+                  join av2022.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
+                  left join av2022.at_geography_england@casref01 g on at.tumourid = g.tumourid
                   left join imd.imd2019_equal_lsoas@casref01 d on g.lsoa11_code = d.lsoa11_code
                   where ln.final_unique = 1"
 
@@ -164,8 +164,8 @@ imd2017_query <- "select
                       d.imd19_quintile_lsoas
                   from cpes.nc_2017_respondents@casref01 cpes
                   join cpes.nc_2017_linkage_cas1907@casref01 ln on cpes.cpes_psid = ln.psid
-                  join av2021.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
-                  left join av2021.at_geography_england@casref01 g on at.tumourid = g.tumourid
+                  join av2022.at_tumour_england@casref01 at on ln.patientid = at.patientid and ln.tumourid = at.tumourid
+                  left join av2022.at_geography_england@casref01 g on at.tumourid = g.tumourid
                   left join imd.imd2019_equal_lsoas@casref01 d on g.lsoa11_code = d.lsoa11_code
                   where ln.final_unique = 1"
 
@@ -218,8 +218,6 @@ resp_data <- resp_data |> ####different question in different years
                                datayear %in% c(2018, 2017) & Q65 == 3 ~ "Bisexual", 
                                datayear %in% c(2018, 2017) & Q65 == 4 ~ "Other", 
                                datayear %in% c(2018, 2017) & Q65 == 5 ~ "Prefer not to say", 
-                               datayear %in% c(2018, 2017) & Q65 == 6 ~ "Don't know/not sure", 
-                               datayear %in% c(2018, 2017) & Q65 == 999 ~ "Missing", 
                                TRUE ~ "Missing")) |>
   mutate(sexuality_bin = case_when(sexuality %in% c("Gay or lesbian", "Bisexual", "Other") ~ "Sexual minority", 
                                    sexuality == "Heterosexual" ~ "Heterosexual", 
@@ -233,13 +231,6 @@ resp_data <- resp_data |> ####different question in different years
                                datayear %in% c(2018, 2017) & Q68 == 1 ~ "Native English speaker", 
                                datayear %in% c(2018, 2017) & Q68 == 2 ~ "Non-native English speaker",
                                TRUE ~ "Missing"))
-
-
-########### Cleaning confounder data ########### 
-
-#note re checking other confoudners
-resp_data <- resp_data |>
-  mutate(ETHNICITY = ifelse(ETHNICITY == "0", NA, ETHNICITY))
 
 
 ########### Creating age variables ########### 

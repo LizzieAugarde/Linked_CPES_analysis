@@ -41,22 +41,12 @@ stage_data <- stage_data |>
   filter(STAGE_PI_DETAIL == "Y")
 
 #multiple responses 
-stage_data_dups_check <- stage_data |>
-  group_by(PATIENTID) |> 
-  filter(n() > 1) 
-
-stage_data_single_response <- stage_data |>
-  group_by(PATIENTID) |> 
-  filter(n() == 1) 
-
-source("multiple_responses_functions.R")
-
-stage_data_dups_rank <- rank_multiple_responses(stage_data_dups_check, "PATIENTID", "datayear")
-stage_data_dups_rank <- stage_data_dups_rank |> 
-  filter(rank == 1) |>
-  select(-rank)
-
-stage_data <- rbind(stage_data_single_response, stage_data_dups_rank)
+stage_data <- stage_data |> 
+  group_by(PATIENTID) |>
+  arrange(datayear) |>
+  mutate(rownum = row_number()) |>
+  filter(rownum == 1) |>
+  select(-rownum)
 
 #check 
 length(unique(stage_data$PATIENTID))

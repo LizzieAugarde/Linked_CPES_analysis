@@ -14,22 +14,13 @@ rtd_data <- resp_data |>
   mutate(FINAL_ROUTE = ifelse(is.na(FINAL_ROUTE), "Missing", FINAL_ROUTE))
 
 #multiple responses 
-rtd_data_dups_check <- rtd_data |>
-  group_by(PATIENTID) |> 
-  filter(n() > 1) 
+rtd_data <- rtd_data |> 
+  group_by(PATIENTID) |>
+  arrange(datayear) |>
+  mutate(rownum = row_number()) |>
+  filter(rownum == 1) |>
+  select(-rownum)
 
-rtd_data_single_response <- rtd_data |>
-  group_by(PATIENTID) |> 
-  filter(n() == 1) 
-
-source("multiple_responses_functions.R")
-
-rtd_data_dups_rank <- rank_multiple_responses(rtd_data_dups_check, "PATIENTID", "datayear")
-rtd_data_dups_rank <- rtd_data_dups_rank |> 
-  filter(rank == 1) |>
-  select(-rank)
-
-rtd_data <- rbind(rtd_data_single_response, rtd_data_dups_rank) 
 
 #check 
 length(unique(rtd_data$PATIENTID))
