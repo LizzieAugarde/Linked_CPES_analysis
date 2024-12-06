@@ -93,7 +93,7 @@ ggsurvplot(surv_fits, combine = TRUE,
 surv_1yr_data_sex <- surv_1yr_data |> filter(sexuality_bin != "Missing") 
 
 #difference by sexuality
-survdiff(Surv(daystodeath, status_1yr) ~ sexuality_bin, data = surv_1yr_data_sex) #log rank comparison no difference chisq = 1.9, p = 0.2
+survdiff(Surv(daystodeath, status_1yr) ~ sexuality_bin, data = surv_1yr_data_sex) #log rank comparison no difference chisq = 1.6, p = 0.2
 survfitsex <- survfit(Surv(daystodeath, status_1yr) ~ sexuality_bin, data = surv_1yr_data_sex)
 ggsurvplot(survfitsex, data = surv_1yr_data_sex, pval = TRUE, conf.int = TRUE, risk.table = TRUE,
            legend.title = "Sexuality", legend.labs = c("Heterosexual", "Sexual minority"),
@@ -104,7 +104,7 @@ ggsurvplot(survfitsex, data = surv_1yr_data_sex, pval = TRUE, conf.int = TRUE, r
 surv_1yr_data_lang <- surv_1yr_data |> filter(lang_stat != "Missing") 
 
 #difference by language 
-survdiff(Surv(daystodeath, status_1yr) ~ lang_stat, data = surv_1yr_data_lang) #log rank comparison true difference chisq = 25.1, p = <0.0001, surv prob lower for NES
+survdiff(Surv(daystodeath, status_1yr) ~ lang_stat, data = surv_1yr_data_lang) #log rank comparison true difference chisq = 24.5, p = <0.0001, surv prob lower for NES
 survfitlang <- survfit(Surv(daystodeath, status_1yr) ~ lang_stat, data = surv_1yr_data_lang)
 ggsurvplot(survfitlang, data = surv_1yr_data_lang, pval = TRUE, conf.int = TRUE, risk.table = TRUE,
            legend.title = "Sexuality", legend.labs = c("Native English-speaking", "Non-native English-speaking"),
