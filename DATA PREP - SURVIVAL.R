@@ -12,11 +12,11 @@ surv_data <- resp_data |>
          DEATHDATEBEST = as.Date(DEATHDATEBEST)) |>
   mutate(daystodeath = difftime(as.Date(DEATHDATEBEST), as.Date(DIAGNOSISDATEBEST), units = "days")) |>
   mutate(date1yrpost = DIAGNOSISDATEBEST + 365, date5yrspost = DIAGNOSISDATEBEST + 1825) |>
-  mutate(survival_1yr = ifelse(daystodeath > 365 | is.na(daystodeath), "Yes", "No")) |>
-  mutate(survival_5yr = ifelse(daystodeath > 1825 | is.na(daystodeath), "Yes", "No"),
-         status_1yr = ifelse(daystodeath > 365 | is.na(daystodeath), 0, 1),
-         status_5yr = ifelse(daystodeath > 1825 | is.na(daystodeath), 0, 1))
-
+  mutate(survival_1yr = ifelse(VITALSTATUS == "D" & VITALSTATUSDATE < date1yrpost, "No", "Yes"), 
+         survival_5yr = ifelse(VITALSTATUS == "D" & VITALSTATUSDATE < date5yrspost, "No", "Yes")) |>
+  mutate(status_1yr = ifelse(survival_1yr == "Yes", 0, 1),
+         status_5yr = ifelse(survival_5yr == "Yes", 0, 1))
+           
 
 ########### 1yr survival dataset for descriptive analysis ###########
 surv_1yr_data <- surv_data |>
