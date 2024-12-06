@@ -237,6 +237,7 @@ resp_data <- resp_data |> ####different question in different years
 #derive age at diagnosis from birth and diagnosis dates due to weird age responses in CPES 
 resp_data <- resp_data |>
   mutate(age_at_diag = round((as.numeric(difftime(DIAGNOSISDATEBEST, BIRTHDATEBEST, units = "days")))/365.25)) |>
+  mutate(age_at_diag2 = floor((as.numeric(difftime(DIAGNOSISDATEBEST, BIRTHDATEBEST, units = "days")))/365.25)) |>
   mutate(age_10yr_band = case_when(age_at_diag < 10 ~ "0-9", 
                                    age_at_diag > 9 & age_at_diag <20 ~ "10-19",
                                    age_at_diag > 19 & age_at_diag <30 ~ "20-29",
